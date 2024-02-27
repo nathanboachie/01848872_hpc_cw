@@ -1,0 +1,133 @@
+\hypertarget{classLidDrivenCavity}{}\doxysection{Lid\+Driven\+Cavity Class Reference}
+\label{classLidDrivenCavity}\index{LidDrivenCavity@{LidDrivenCavity}}
+
+
+Includes functions from source file and parameters.  
+
+
+
+
+{\ttfamily \#include $<$Lid\+Driven\+Cavity.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classLidDrivenCavity_a497a8268ebbb541b0e591df04dbcc1df}\label{classLidDrivenCavity_a497a8268ebbb541b0e591df04dbcc1df}} 
+{\bfseries Lid\+Driven\+Cavity} ()
+\begin{DoxyCompactList}\small\item\em Constructor of \mbox{\hyperlink{classLidDrivenCavity}{Lid\+Driven\+Cavity}} class. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classLidDrivenCavity_ac78f201aa895020820cd9c5752db72ea}\label{classLidDrivenCavity_ac78f201aa895020820cd9c5752db72ea}} 
+{\bfseries $\sim$\+Lid\+Driven\+Cavity} ()
+\begin{DoxyCompactList}\small\item\em Destructor of \mbox{\hyperlink{classLidDrivenCavity}{Lid\+Driven\+Cavity}} class. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classLidDrivenCavity_ac96a0dd4fe0d31f9daba2e126ff72885}{Set\+Domain\+Size}} (double xlen, double ylen)
+\begin{DoxyCompactList}\small\item\em setter for domain size \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classLidDrivenCavity_aa6f9fbebb9bf7cb481ff5f066e14f596}{Set\+Grid\+Size}} (int nx, int ny)
+\begin{DoxyCompactList}\small\item\em Setter for grid size. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classLidDrivenCavity_a996ab414b064d520581b0d4ed08aa17d}{Set\+Time\+Step}} (double deltat)
+\begin{DoxyCompactList}\small\item\em Setter for number of time steps. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classLidDrivenCavity_af9307f56a6f334e6740164c90775f461}{Set\+Final\+Time}} (double finalt)
+\begin{DoxyCompactList}\small\item\em Setter for final time. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classLidDrivenCavity_aeb6eca7e0c1255ebc4c1a8da56dd95b8}{Set\+Reynolds\+Number}} (double Re)
+\begin{DoxyCompactList}\small\item\em Setter for Reynolds number and creates 1/reynolds number for numerical purposes. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classLidDrivenCavity_ab0eb448219134e835173e94874a3983a}\label{classLidDrivenCavity_ab0eb448219134e835173e94874a3983a}} 
+void {\bfseries Initialise} ()
+\begin{DoxyCompactList}\small\item\em Initalising simulation. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classLidDrivenCavity_a80cd7032d10f09279d62d03335023e72}\label{classLidDrivenCavity_a80cd7032d10f09279d62d03335023e72}} 
+void {\bfseries Integrate} ()
+\begin{DoxyCompactList}\small\item\em Output number of steps and time of simulation, move on. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classLidDrivenCavity_a25e4a6ffd522ffbffaf7e0d2fedad59c}\label{classLidDrivenCavity_a25e4a6ffd522ffbffaf7e0d2fedad59c}} 
+void {\bfseries Write\+Solution} (std\+::string file)
+\begin{DoxyCompactList}\small\item\em Writing simulation to output files for data analysis. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classLidDrivenCavity_a8e111839958ac5d4d0d8d583a4d84e86}\label{classLidDrivenCavity_a8e111839958ac5d4d0d8d583a4d84e86}} 
+void {\bfseries Print\+Configuration} ()
+\begin{DoxyCompactList}\small\item\em Outputting configuration onto screen. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Includes functions from source file and parameters. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classLidDrivenCavity_ac96a0dd4fe0d31f9daba2e126ff72885}\label{classLidDrivenCavity_ac96a0dd4fe0d31f9daba2e126ff72885}} 
+\index{LidDrivenCavity@{LidDrivenCavity}!SetDomainSize@{SetDomainSize}}
+\index{SetDomainSize@{SetDomainSize}!LidDrivenCavity@{LidDrivenCavity}}
+\doxysubsubsection{\texorpdfstring{SetDomainSize()}{SetDomainSize()}}
+{\footnotesize\ttfamily void Lid\+Driven\+Cavity\+::\+Set\+Domain\+Size (\begin{DoxyParamCaption}\item[{double}]{xlen,  }\item[{double}]{ylen }\end{DoxyParamCaption})}
+
+
+
+setter for domain size 
+
+
+\begin{DoxyParams}{Parameters}
+{\em xlen} & The length of the grid in the direction \\
+\hline
+{\em ylen} & The length of the grid in the y direction \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classLidDrivenCavity_af9307f56a6f334e6740164c90775f461}\label{classLidDrivenCavity_af9307f56a6f334e6740164c90775f461}} 
+\index{LidDrivenCavity@{LidDrivenCavity}!SetFinalTime@{SetFinalTime}}
+\index{SetFinalTime@{SetFinalTime}!LidDrivenCavity@{LidDrivenCavity}}
+\doxysubsubsection{\texorpdfstring{SetFinalTime()}{SetFinalTime()}}
+{\footnotesize\ttfamily void Lid\+Driven\+Cavity\+::\+Set\+Final\+Time (\begin{DoxyParamCaption}\item[{double}]{finalt }\end{DoxyParamCaption})}
+
+
+
+Setter for final time. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em finalt} & Final time \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classLidDrivenCavity_aa6f9fbebb9bf7cb481ff5f066e14f596}\label{classLidDrivenCavity_aa6f9fbebb9bf7cb481ff5f066e14f596}} 
+\index{LidDrivenCavity@{LidDrivenCavity}!SetGridSize@{SetGridSize}}
+\index{SetGridSize@{SetGridSize}!LidDrivenCavity@{LidDrivenCavity}}
+\doxysubsubsection{\texorpdfstring{SetGridSize()}{SetGridSize()}}
+{\footnotesize\ttfamily void Lid\+Driven\+Cavity\+::\+Set\+Grid\+Size (\begin{DoxyParamCaption}\item[{int}]{nx,  }\item[{int}]{ny }\end{DoxyParamCaption})}
+
+
+
+Setter for grid size. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em nx} & The number of grid points in the x direction \\
+\hline
+{\em ny} & The number of grid points in the y direction \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classLidDrivenCavity_aeb6eca7e0c1255ebc4c1a8da56dd95b8}\label{classLidDrivenCavity_aeb6eca7e0c1255ebc4c1a8da56dd95b8}} 
+\index{LidDrivenCavity@{LidDrivenCavity}!SetReynoldsNumber@{SetReynoldsNumber}}
+\index{SetReynoldsNumber@{SetReynoldsNumber}!LidDrivenCavity@{LidDrivenCavity}}
+\doxysubsubsection{\texorpdfstring{SetReynoldsNumber()}{SetReynoldsNumber()}}
+{\footnotesize\ttfamily void Lid\+Driven\+Cavity\+::\+Set\+Reynolds\+Number (\begin{DoxyParamCaption}\item[{double}]{re }\end{DoxyParamCaption})}
+
+
+
+Setter for Reynolds number and creates 1/reynolds number for numerical purposes. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em re} & Reynolds number \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classLidDrivenCavity_a996ab414b064d520581b0d4ed08aa17d}\label{classLidDrivenCavity_a996ab414b064d520581b0d4ed08aa17d}} 
+\index{LidDrivenCavity@{LidDrivenCavity}!SetTimeStep@{SetTimeStep}}
+\index{SetTimeStep@{SetTimeStep}!LidDrivenCavity@{LidDrivenCavity}}
+\doxysubsubsection{\texorpdfstring{SetTimeStep()}{SetTimeStep()}}
+{\footnotesize\ttfamily void Lid\+Driven\+Cavity\+::\+Set\+Time\+Step (\begin{DoxyParamCaption}\item[{double}]{deltat }\end{DoxyParamCaption})}
+
+
+
+Setter for number of time steps. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em deltat} & Number of time steps \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Lid\+Driven\+Cavity.\+h\item 
+Lid\+Driven\+Cavity.\+cpp\end{DoxyCompactItemize}

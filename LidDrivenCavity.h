@@ -5,6 +5,10 @@ using namespace std;
 
 class SolverCG;
 
+/**
+ * @class LidDrivenCavity
+ * @brief Includes functions from source file and parameters 
+*/
 class LidDrivenCavity
 {
 public:

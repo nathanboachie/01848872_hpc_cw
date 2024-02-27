@@ -1,5 +1,9 @@
 #pragma once
 
+/**
+ * @class SolverCG 
+ * @brief Includes functions and parameters used in solver class source file
+*/
 class SolverCG
 {
 public:

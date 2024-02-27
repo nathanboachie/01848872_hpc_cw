@@ -6,6 +6,9 @@ namespace po = boost::program_options;
 
 #include "LidDrivenCavity.h"
 
+/**
+ * @brief Takes options from solver executable command line, runs solver and writes solutions to text files
+*/
 int main(int argc, char **argv)
 {
     po::options_description opts(

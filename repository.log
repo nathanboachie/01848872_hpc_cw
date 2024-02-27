@@ -1,3 +1,19 @@
+commit bc4f1b2a315c36ed72be11b87e6694ed8fcba6dd
+Author: Nathan <nathan.boachie20@imperial.ac.uk>
+Date:   Sat Feb 24 16:47:57 2024 +0000
+
+    Adding makefile, executable and files from solver
+
+A	LidDrivenCavity.o
+A	LidDrivenCavitySolver.o
+A	Makefile
+A	SolverCG.o
+A	cmd_line.txt
+A	final.txt
+A	ic.txt
+A	repository.log
+A	solver
+
 commit bfa1f055b46f24f12ebce9f54100dbbd1f06141f
 Author: Nathan <nathan.boachie20@imperial.ac.uk>
 Date:   Sat Feb 24 15:54:49 2024 +0000

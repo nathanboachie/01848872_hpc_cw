@@ -7,8 +7,18 @@ using namespace std;
 
 #include "SolverCG.h"
 
+/**
+ * @brief Macro maps 2d coordinates to 1d index in array (Matrix --> flattened array)
+*/
 #define IDX(I,J) ((J)*Nx + (I))
 
+/**
+ * @brief Constructor of SolverCG class
+ * @param pNx Number of grid points in x direction
+ * @param pNy Number of grid points in y direction
+ * @param pdx Grid spacing in x direction 
+ * @param pdy Grid spacing in y direction
+*/
 SolverCG::SolverCG(int pNx, int pNy, double pdx, double pdy)
 {
     dx = pdx;
@@ -22,7 +32,9 @@ SolverCG::SolverCG(int pNx, int pNy, double pdx, double pdy)
     t = new double[n]; //temp
 }
 
-
+/**
+ * @brief Destructor of SolverCG class
+*/
 SolverCG::~SolverCG()
 {
     delete[] r;
@@ -31,7 +43,11 @@ SolverCG::~SolverCG()
     delete[] t;
 }
 
-
+/**
+ * @brief Applies Conjugate gradient method to solve Poisson's equation, using cblas algorithm
+ * @param b is the output vector in Ax = b
+ * @param x is the vector to be solved 
+*/
 void SolverCG::Solve(double* b, double* x) {
     unsigned int n = Nx*Ny;
     int k;
@@ -90,7 +106,11 @@ void SolverCG::Solve(double* b, double* x) {
     cout << "Converged in " << k << " iterations. eps = " << eps << endl;
 }
 
-
+/**
+ * @brief ApplyOperator applies second order finite difference discretisation to input and output vectors
+ * @param in Input vector 
+ * @param out Output vectpr
+*/
 void SolverCG::ApplyOperator(double* in, double* out) {
     // Assume ordered with y-direction fastest (column-by-column)
     double dx2i = 1.0/dx/dx;
@@ -110,7 +130,11 @@ void SolverCG::ApplyOperator(double* in, double* out) {
     }
 }
 
-
+/**
+ * @brief Preconditioning to speed up convergence, better solution representation
+ * @param in Input vector (matrix)
+ * @param out Output vector (vector)
+*/
 void SolverCG::Precondition(double* in, double* out) {
     int i, j;
     double dx2i = 1.0/dx/dx;
@@ -133,6 +157,10 @@ void SolverCG::Precondition(double* in, double* out) {
     }
 }
 
+/**
+ * @brief Applying boundary conditions on vectors in specific directions
+ * @param inout Vector in which bcs applied to, most likely velocity 
+*/
 void SolverCG::ImposeBC(double* inout) {
         // Boundaries
     for (int i = 0; i < Nx; ++i) {
