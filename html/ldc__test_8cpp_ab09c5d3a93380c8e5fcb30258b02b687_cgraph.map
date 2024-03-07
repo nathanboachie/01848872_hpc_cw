@@ -1,7 +1,0 @@
-<map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
-<area shape="rect" id="node1" title=" " alt="" coords="5,81,196,108"/>
-<area shape="rect" id="node2" href="$classLidDrivenCavity.html#ab0eb448219134e835173e94874a3983a" title="Initalising simulation and call numerical solver." alt="" coords="275,5,464,32"/>
-<area shape="rect" id="node3" href="$classLidDrivenCavity.html#a80cd7032d10f09279d62d03335023e72" title="Output number of steps and time of simulation, and step in time for vorticity." alt="" coords="273,56,465,83"/>
-<area shape="rect" id="node4" href="$classLidDrivenCavity.html#a8e111839958ac5d4d0d8d583a4d84e86" title="Outputting configuration onto screen." alt="" coords="244,107,495,133"/>
-<area shape="rect" id="node5" href="$classLidDrivenCavity.html#a25e4a6ffd522ffbffaf7e0d2fedad59c" title="Writing simulation to output files for data analysis." alt="" coords="259,157,480,184"/>
-</map>
