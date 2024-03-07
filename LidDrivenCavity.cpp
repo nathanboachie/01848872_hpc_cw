@@ -84,7 +84,7 @@ void LidDrivenCavity::SetReynoldsNumber(double re)
 }
 
 /**
- * @brief Initalising simulation
+ * @brief Initalising simulation and call numerical solver 
 */
 void LidDrivenCavity::Initialise()
 {
@@ -97,7 +97,7 @@ void LidDrivenCavity::Initialise()
 }
 
 /**
- * @brief Output number of steps and time of simulation, move on
+ * @brief Output number of steps and time of simulation, and step in time for vorticity 
 */
 void LidDrivenCavity::Integrate()
 {
@@ -182,7 +182,7 @@ void LidDrivenCavity::CleanUp()
 }
 
 /**
- * @brief Creating delta x and delta y values and number of grid points
+ * @brief Creating x and y grid spacing and number of grid points
 */
 void LidDrivenCavity::UpdateDxDy()
 {
@@ -207,7 +207,7 @@ void LidDrivenCavity::Advance()
         v[IDX(i,0)]    = 2.0 * dy2i * (s[IDX(i,0)]    - s[IDX(i,1)]);
         // bottom
         v[IDX(i,Ny-1)] = 2.0 * dy2i * (s[IDX(i,Ny-1)] - s[IDX(i,Ny-2)])
-                       - 2.0 * dxi*U;
+                       - 2.0 * dyi*U;
     }
     for (int j = 1; j < Ny-1; ++j) {
         // left

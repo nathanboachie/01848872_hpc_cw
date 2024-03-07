@@ -44,7 +44,7 @@ SolverCG::~SolverCG()
 }
 
 /**
- * @brief Applies Conjugate gradient method to solve Poisson's equation, using cblas algorithm
+ * @brief Applies Conjugate gradient method to solve Poisson's equation, using cblas library
  * @param b is the output vector in Ax = b
  * @param x is the vector to be solved 
 */
@@ -109,7 +109,7 @@ void SolverCG::Solve(double* b, double* x) {
 /**
  * @brief ApplyOperator applies second order finite difference discretisation to input and output vectors
  * @param in Input vector 
- * @param out Output vectpr
+ * @param out Output vector
 */
 void SolverCG::ApplyOperator(double* in, double* out) {
     // Assume ordered with y-direction fastest (column-by-column)

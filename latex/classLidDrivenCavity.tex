@@ -12,11 +12,9 @@ Includes functions from source file and parameters.
 \doxysubsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-\mbox{\Hypertarget{classLidDrivenCavity_a497a8268ebbb541b0e591df04dbcc1df}\label{classLidDrivenCavity_a497a8268ebbb541b0e591df04dbcc1df}} 
-{\bfseries Lid\+Driven\+Cavity} ()
+\mbox{\hyperlink{classLidDrivenCavity_a497a8268ebbb541b0e591df04dbcc1df}{Lid\+Driven\+Cavity}} ()
 \begin{DoxyCompactList}\small\item\em Constructor of \mbox{\hyperlink{classLidDrivenCavity}{Lid\+Driven\+Cavity}} class. \end{DoxyCompactList}\item 
-\mbox{\Hypertarget{classLidDrivenCavity_ac78f201aa895020820cd9c5752db72ea}\label{classLidDrivenCavity_ac78f201aa895020820cd9c5752db72ea}} 
-{\bfseries $\sim$\+Lid\+Driven\+Cavity} ()
+\mbox{\hyperlink{classLidDrivenCavity_ac78f201aa895020820cd9c5752db72ea}{$\sim$\+Lid\+Driven\+Cavity}} ()
 \begin{DoxyCompactList}\small\item\em Destructor of \mbox{\hyperlink{classLidDrivenCavity}{Lid\+Driven\+Cavity}} class. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{classLidDrivenCavity_ac96a0dd4fe0d31f9daba2e126ff72885}{Set\+Domain\+Size}} (double xlen, double ylen)
 \begin{DoxyCompactList}\small\item\em setter for domain size \end{DoxyCompactList}\item 
@@ -28,24 +26,94 @@ void \mbox{\hyperlink{classLidDrivenCavity_af9307f56a6f334e6740164c90775f461}{Se
 \begin{DoxyCompactList}\small\item\em Setter for final time. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{classLidDrivenCavity_aeb6eca7e0c1255ebc4c1a8da56dd95b8}{Set\+Reynolds\+Number}} (double Re)
 \begin{DoxyCompactList}\small\item\em Setter for Reynolds number and creates 1/reynolds number for numerical purposes. \end{DoxyCompactList}\item 
-\mbox{\Hypertarget{classLidDrivenCavity_ab0eb448219134e835173e94874a3983a}\label{classLidDrivenCavity_ab0eb448219134e835173e94874a3983a}} 
-void {\bfseries Initialise} ()
-\begin{DoxyCompactList}\small\item\em Initalising simulation. \end{DoxyCompactList}\item 
-\mbox{\Hypertarget{classLidDrivenCavity_a80cd7032d10f09279d62d03335023e72}\label{classLidDrivenCavity_a80cd7032d10f09279d62d03335023e72}} 
-void {\bfseries Integrate} ()
-\begin{DoxyCompactList}\small\item\em Output number of steps and time of simulation, move on. \end{DoxyCompactList}\item 
-\mbox{\Hypertarget{classLidDrivenCavity_a25e4a6ffd522ffbffaf7e0d2fedad59c}\label{classLidDrivenCavity_a25e4a6ffd522ffbffaf7e0d2fedad59c}} 
-void {\bfseries Write\+Solution} (std\+::string file)
+void \mbox{\hyperlink{classLidDrivenCavity_ab0eb448219134e835173e94874a3983a}{Initialise}} ()
+\begin{DoxyCompactList}\small\item\em Initalising simulation and call numerical solver. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classLidDrivenCavity_a80cd7032d10f09279d62d03335023e72}{Integrate}} ()
+\begin{DoxyCompactList}\small\item\em Output number of steps and time of simulation, and step in time for vorticity. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classLidDrivenCavity_a25e4a6ffd522ffbffaf7e0d2fedad59c}{Write\+Solution}} (std\+::string file)
 \begin{DoxyCompactList}\small\item\em Writing simulation to output files for data analysis. \end{DoxyCompactList}\item 
-\mbox{\Hypertarget{classLidDrivenCavity_a8e111839958ac5d4d0d8d583a4d84e86}\label{classLidDrivenCavity_a8e111839958ac5d4d0d8d583a4d84e86}} 
-void {\bfseries Print\+Configuration} ()
+void \mbox{\hyperlink{classLidDrivenCavity_a8e111839958ac5d4d0d8d583a4d84e86}{Print\+Configuration}} ()
 \begin{DoxyCompactList}\small\item\em Outputting configuration onto screen. \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \doxysubsection{Detailed Description}
 Includes functions from source file and parameters. 
 
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classLidDrivenCavity_a497a8268ebbb541b0e591df04dbcc1df}\label{classLidDrivenCavity_a497a8268ebbb541b0e591df04dbcc1df}} 
+\index{LidDrivenCavity@{LidDrivenCavity}!LidDrivenCavity@{LidDrivenCavity}}
+\index{LidDrivenCavity@{LidDrivenCavity}!LidDrivenCavity@{LidDrivenCavity}}
+\doxysubsubsection{\texorpdfstring{LidDrivenCavity()}{LidDrivenCavity()}}
+{\footnotesize\ttfamily Lid\+Driven\+Cavity\+::\+Lid\+Driven\+Cavity (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Constructor of \mbox{\hyperlink{classLidDrivenCavity}{Lid\+Driven\+Cavity}} class. 
+
+\mbox{\Hypertarget{classLidDrivenCavity_ac78f201aa895020820cd9c5752db72ea}\label{classLidDrivenCavity_ac78f201aa895020820cd9c5752db72ea}} 
+\index{LidDrivenCavity@{LidDrivenCavity}!````~LidDrivenCavity@{$\sim$LidDrivenCavity}}
+\index{````~LidDrivenCavity@{$\sim$LidDrivenCavity}!LidDrivenCavity@{LidDrivenCavity}}
+\doxysubsubsection{\texorpdfstring{$\sim$LidDrivenCavity()}{~LidDrivenCavity()}}
+{\footnotesize\ttfamily Lid\+Driven\+Cavity\+::$\sim$\+Lid\+Driven\+Cavity (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Destructor of \mbox{\hyperlink{classLidDrivenCavity}{Lid\+Driven\+Cavity}} class. 
+
+
+
 \doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classLidDrivenCavity_ab0eb448219134e835173e94874a3983a}\label{classLidDrivenCavity_ab0eb448219134e835173e94874a3983a}} 
+\index{LidDrivenCavity@{LidDrivenCavity}!Initialise@{Initialise}}
+\index{Initialise@{Initialise}!LidDrivenCavity@{LidDrivenCavity}}
+\doxysubsubsection{\texorpdfstring{Initialise()}{Initialise()}}
+{\footnotesize\ttfamily void Lid\+Driven\+Cavity\+::\+Initialise (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Initalising simulation and call numerical solver. 
+
+Here is the caller graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classLidDrivenCavity_ab0eb448219134e835173e94874a3983a_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{classLidDrivenCavity_a80cd7032d10f09279d62d03335023e72}\label{classLidDrivenCavity_a80cd7032d10f09279d62d03335023e72}} 
+\index{LidDrivenCavity@{LidDrivenCavity}!Integrate@{Integrate}}
+\index{Integrate@{Integrate}!LidDrivenCavity@{LidDrivenCavity}}
+\doxysubsubsection{\texorpdfstring{Integrate()}{Integrate()}}
+{\footnotesize\ttfamily void Lid\+Driven\+Cavity\+::\+Integrate (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Output number of steps and time of simulation, and step in time for vorticity. 
+
+Here is the caller graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classLidDrivenCavity_a80cd7032d10f09279d62d03335023e72_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{classLidDrivenCavity_a8e111839958ac5d4d0d8d583a4d84e86}\label{classLidDrivenCavity_a8e111839958ac5d4d0d8d583a4d84e86}} 
+\index{LidDrivenCavity@{LidDrivenCavity}!PrintConfiguration@{PrintConfiguration}}
+\index{PrintConfiguration@{PrintConfiguration}!LidDrivenCavity@{LidDrivenCavity}}
+\doxysubsubsection{\texorpdfstring{PrintConfiguration()}{PrintConfiguration()}}
+{\footnotesize\ttfamily void Lid\+Driven\+Cavity\+::\+Print\+Configuration (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Outputting configuration onto screen. 
+
+Here is the caller graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classLidDrivenCavity_a8e111839958ac5d4d0d8d583a4d84e86_icgraph}
+\end{center}
+\end{figure}
 \mbox{\Hypertarget{classLidDrivenCavity_ac96a0dd4fe0d31f9daba2e126ff72885}\label{classLidDrivenCavity_ac96a0dd4fe0d31f9daba2e126ff72885}} 
 \index{LidDrivenCavity@{LidDrivenCavity}!SetDomainSize@{SetDomainSize}}
 \index{SetDomainSize@{SetDomainSize}!LidDrivenCavity@{LidDrivenCavity}}
@@ -63,6 +131,13 @@ setter for domain size
 {\em ylen} & The length of the grid in the y direction \\
 \hline
 \end{DoxyParams}
+Here is the caller graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=331pt]{classLidDrivenCavity_ac96a0dd4fe0d31f9daba2e126ff72885_icgraph}
+\end{center}
+\end{figure}
 \mbox{\Hypertarget{classLidDrivenCavity_af9307f56a6f334e6740164c90775f461}\label{classLidDrivenCavity_af9307f56a6f334e6740164c90775f461}} 
 \index{LidDrivenCavity@{LidDrivenCavity}!SetFinalTime@{SetFinalTime}}
 \index{SetFinalTime@{SetFinalTime}!LidDrivenCavity@{LidDrivenCavity}}
@@ -78,6 +153,13 @@ Setter for final time.
 {\em finalt} & Final time \\
 \hline
 \end{DoxyParams}
+Here is the caller graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=319pt]{classLidDrivenCavity_af9307f56a6f334e6740164c90775f461_icgraph}
+\end{center}
+\end{figure}
 \mbox{\Hypertarget{classLidDrivenCavity_aa6f9fbebb9bf7cb481ff5f066e14f596}\label{classLidDrivenCavity_aa6f9fbebb9bf7cb481ff5f066e14f596}} 
 \index{LidDrivenCavity@{LidDrivenCavity}!SetGridSize@{SetGridSize}}
 \index{SetGridSize@{SetGridSize}!LidDrivenCavity@{LidDrivenCavity}}
@@ -95,6 +177,13 @@ Setter for grid size.
 {\em ny} & The number of grid points in the y direction \\
 \hline
 \end{DoxyParams}
+Here is the caller graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=313pt]{classLidDrivenCavity_aa6f9fbebb9bf7cb481ff5f066e14f596_icgraph}
+\end{center}
+\end{figure}
 \mbox{\Hypertarget{classLidDrivenCavity_aeb6eca7e0c1255ebc4c1a8da56dd95b8}\label{classLidDrivenCavity_aeb6eca7e0c1255ebc4c1a8da56dd95b8}} 
 \index{LidDrivenCavity@{LidDrivenCavity}!SetReynoldsNumber@{SetReynoldsNumber}}
 \index{SetReynoldsNumber@{SetReynoldsNumber}!LidDrivenCavity@{LidDrivenCavity}}
@@ -110,6 +199,13 @@ Setter for Reynolds number and creates 1/reynolds number for numerical purposes.
 {\em re} & Reynolds number \\
 \hline
 \end{DoxyParams}
+Here is the caller graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=318pt]{classLidDrivenCavity_aeb6eca7e0c1255ebc4c1a8da56dd95b8_icgraph}
+\end{center}
+\end{figure}
 \mbox{\Hypertarget{classLidDrivenCavity_a996ab414b064d520581b0d4ed08aa17d}\label{classLidDrivenCavity_a996ab414b064d520581b0d4ed08aa17d}} 
 \index{LidDrivenCavity@{LidDrivenCavity}!SetTimeStep@{SetTimeStep}}
 \index{SetTimeStep@{SetTimeStep}!LidDrivenCavity@{LidDrivenCavity}}
@@ -125,9 +221,33 @@ Setter for number of time steps.
 {\em deltat} & Number of time steps \\
 \hline
 \end{DoxyParams}
+Here is the caller graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=318pt]{classLidDrivenCavity_a996ab414b064d520581b0d4ed08aa17d_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{classLidDrivenCavity_a25e4a6ffd522ffbffaf7e0d2fedad59c}\label{classLidDrivenCavity_a25e4a6ffd522ffbffaf7e0d2fedad59c}} 
+\index{LidDrivenCavity@{LidDrivenCavity}!WriteSolution@{WriteSolution}}
+\index{WriteSolution@{WriteSolution}!LidDrivenCavity@{LidDrivenCavity}}
+\doxysubsubsection{\texorpdfstring{WriteSolution()}{WriteSolution()}}
+{\footnotesize\ttfamily void Lid\+Driven\+Cavity\+::\+Write\+Solution (\begin{DoxyParamCaption}\item[{std\+::string}]{file }\end{DoxyParamCaption})}
+
+
+
+Writing simulation to output files for data analysis. 
+
+Here is the caller graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classLidDrivenCavity_a25e4a6ffd522ffbffaf7e0d2fedad59c_icgraph}
+\end{center}
+\end{figure}
 
 
 The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
 \item 
-Lid\+Driven\+Cavity.\+h\item 
-Lid\+Driven\+Cavity.\+cpp\end{DoxyCompactItemize}
+\mbox{\hyperlink{LidDrivenCavity_8h}{Lid\+Driven\+Cavity.\+h}}\item 
+\mbox{\hyperlink{LidDrivenCavity_8cpp}{Lid\+Driven\+Cavity.\+cpp}}\end{DoxyCompactItemize}

@@ -14,11 +14,10 @@ Includes functions and parameters used in solver class source file.
 \item 
 \mbox{\hyperlink{classSolverCG_af2e6b28644c4379d49bffb377c020345}{Solver\+CG}} (int p\+Nx, int p\+Ny, double pdx, double pdy)
 \begin{DoxyCompactList}\small\item\em Constructor of \mbox{\hyperlink{classSolverCG}{Solver\+CG}} class. \end{DoxyCompactList}\item 
-\mbox{\Hypertarget{classSolverCG_a996c32d6fce0b553c981a6c1f86387e8}\label{classSolverCG_a996c32d6fce0b553c981a6c1f86387e8}} 
-{\bfseries $\sim$\+Solver\+CG} ()
+\mbox{\hyperlink{classSolverCG_a996c32d6fce0b553c981a6c1f86387e8}{$\sim$\+Solver\+CG}} ()
 \begin{DoxyCompactList}\small\item\em Destructor of \mbox{\hyperlink{classSolverCG}{Solver\+CG}} class. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{classSolverCG_a8cc7c4b2651399f9dc5b5ef2bdfeebf7}{Solve}} (double $\ast$b, double $\ast$x)
-\begin{DoxyCompactList}\small\item\em Applies Conjugate gradient method to solve Poisson\textquotesingle{}s equation, using cblas algorithm. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em Applies Conjugate gradient method to solve Poisson\textquotesingle{}s equation, using cblas library. \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \doxysubsection{Detailed Description}
@@ -46,6 +45,16 @@ Constructor of \mbox{\hyperlink{classSolverCG}{Solver\+CG}} class.
 {\em pdy} & Grid spacing in y direction \\
 \hline
 \end{DoxyParams}
+\mbox{\Hypertarget{classSolverCG_a996c32d6fce0b553c981a6c1f86387e8}\label{classSolverCG_a996c32d6fce0b553c981a6c1f86387e8}} 
+\index{SolverCG@{SolverCG}!````~SolverCG@{$\sim$SolverCG}}
+\index{````~SolverCG@{$\sim$SolverCG}!SolverCG@{SolverCG}}
+\doxysubsubsection{\texorpdfstring{$\sim$SolverCG()}{~SolverCG()}}
+{\footnotesize\ttfamily Solver\+CG\+::$\sim$\+Solver\+CG (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Destructor of \mbox{\hyperlink{classSolverCG}{Solver\+CG}} class. 
+
 
 
 \doxysubsection{Member Function Documentation}
@@ -57,7 +66,7 @@ Constructor of \mbox{\hyperlink{classSolverCG}{Solver\+CG}} class.
 
 
 
-Applies Conjugate gradient method to solve Poisson\textquotesingle{}s equation, using cblas algorithm. 
+Applies Conjugate gradient method to solve Poisson\textquotesingle{}s equation, using cblas library. 
 
 
 \begin{DoxyParams}{Parameters}
@@ -70,5 +79,5 @@ Applies Conjugate gradient method to solve Poisson\textquotesingle{}s equation, 
 
 The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
 \item 
-Solver\+CG.\+h\item 
-Solver\+CG.\+cpp\end{DoxyCompactItemize}
+\mbox{\hyperlink{SolverCG_8h}{Solver\+CG.\+h}}\item 
+\mbox{\hyperlink{SolverCG_8cpp}{Solver\+CG.\+cpp}}\end{DoxyCompactItemize}

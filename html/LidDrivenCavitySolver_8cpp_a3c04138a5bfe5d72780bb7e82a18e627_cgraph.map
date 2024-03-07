@@ -1,0 +1,12 @@
+<map id="main" name="main">
+<area shape="rect" id="node1" title="Takes options from solver executable command line, runs solver and writes solutions to text files." alt="" coords="5,208,60,235"/>
+<area shape="rect" id="node2" href="$classLidDrivenCavity.html#ab0eb448219134e835173e94874a3983a" title="Initalising simulation and call numerical solver." alt="" coords="139,5,328,32"/>
+<area shape="rect" id="node3" href="$classLidDrivenCavity.html#a80cd7032d10f09279d62d03335023e72" title="Output number of steps and time of simulation, and step in time for vorticity." alt="" coords="137,56,329,83"/>
+<area shape="rect" id="node4" href="$classLidDrivenCavity.html#a8e111839958ac5d4d0d8d583a4d84e86" title="Outputting configuration onto screen." alt="" coords="108,107,359,133"/>
+<area shape="rect" id="node5" href="$classLidDrivenCavity.html#ac96a0dd4fe0d31f9daba2e126ff72885" title="setter for domain size" alt="" coords="117,157,349,184"/>
+<area shape="rect" id="node6" href="$classLidDrivenCavity.html#af9307f56a6f334e6740164c90775f461" title="Setter for final time." alt="" coords="125,208,341,235"/>
+<area shape="rect" id="node7" href="$classLidDrivenCavity.html#aa6f9fbebb9bf7cb481ff5f066e14f596" title="Setter for grid size." alt="" coords="129,259,337,285"/>
+<area shape="rect" id="node8" href="$classLidDrivenCavity.html#aeb6eca7e0c1255ebc4c1a8da56dd95b8" title="Setter for Reynolds number and creates 1/reynolds number for numerical purposes." alt="" coords="126,310,341,351"/>
+<area shape="rect" id="node9" href="$classLidDrivenCavity.html#a996ab414b064d520581b0d4ed08aa17d" title="Setter for number of time steps." alt="" coords="126,376,341,403"/>
+<area shape="rect" id="node10" href="$classLidDrivenCavity.html#a25e4a6ffd522ffbffaf7e0d2fedad59c" title="Writing simulation to output files for data analysis." alt="" coords="123,427,344,453"/>
+</map>

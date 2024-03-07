@@ -1,4 +1,6 @@
 var searchData=
 [
-  ['liddrivencavity_0',['LidDrivenCavity',['../classLidDrivenCavity.html',1,'LidDrivenCavity'],['../classLidDrivenCavity.html#a497a8268ebbb541b0e591df04dbcc1df',1,'LidDrivenCavity::LidDrivenCavity()']]]
+  ['idx_0',['IDX',['../LidDrivenCavity_8cpp.html#aad70a03b0bde8b589ffc2e93660844ee',1,'IDX():&#160;LidDrivenCavity.cpp'],['../SolverCG_8cpp.html#aad70a03b0bde8b589ffc2e93660844ee',1,'IDX():&#160;SolverCG.cpp']]],
+  ['initialise_1',['Initialise',['../classLidDrivenCavity.html#ab0eb448219134e835173e94874a3983a',1,'LidDrivenCavity']]],
+  ['integrate_2',['Integrate',['../classLidDrivenCavity.html#a80cd7032d10f09279d62d03335023e72',1,'LidDrivenCavity']]]
 ];

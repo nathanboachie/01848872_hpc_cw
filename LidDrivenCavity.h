@@ -7,7 +7,8 @@ class SolverCG;
 
 /**
  * @class LidDrivenCavity
- * @brief Includes functions from source file and parameters 
+ * @brief Includes methods specific to assigning domain size, parameters and methods 
+ * for advancing solution in time and writing solution to files and terminal
 */
 class LidDrivenCavity
 {

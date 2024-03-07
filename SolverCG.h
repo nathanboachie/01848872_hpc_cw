@@ -2,7 +2,8 @@
 
 /**
  * @class SolverCG 
- * @brief Includes functions and parameters used in solver class source file
+ * @brief Includes method calling conjugate gradient algorithm to solve a linear matrix system
+ * along with others for preconditioning and discretising methods, along with domain parameters
 */
 class SolverCG
 {
