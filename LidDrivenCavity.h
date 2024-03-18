@@ -23,14 +23,29 @@ public:
     void SetReynoldsNumber(double Re);
 
     void Initialise();
-    void Integrate();
+    void Integrate(MPI_Comm comm, int left, int right, int up, int down, int rank);
     void WriteSolution(std::string file);
     void PrintConfiguration();
+    int* dim_prcs;
+    int rank;
+    int size;
+    int left;
+    int up; 
+    int right;
+    int down;
+    MPI_Comm comm;
+    int size_grid;
+    int coords[2];
+    
 
 private:
     double* v   = nullptr;
+    double* vnew = nullptr;
+    double* vsolve = nullptr;
+    double* ssolve = nullptr;
     double* s   = nullptr;
     double* tmp = nullptr;
+    
 
     double dt   = 0.01;
     double T    = 1.0;
@@ -44,11 +59,18 @@ private:
     double Re   = 10;
     double U    = 1.0;
     double nu   = 0.1;
+    double* in_grd_x = nullptr;
+    double* out_grd_x = nullptr;
+    double* in_grd_y = nullptr;
+    double* out_grd_y = nullptr;
 
+    
+
+    
     SolverCG* cg = nullptr;
 
     void CleanUp();
     void UpdateDxDy();
-    void Advance();
+    void Advance(MPI_Comm comm, int left, int right, int up, int down, int rank);
 };
 

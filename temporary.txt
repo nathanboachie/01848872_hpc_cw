@@ -1,0 +1,15 @@
+    for (int j = start_y_cg; j < end_y_cg ; ++j) {
+        for (int i = start_x_cg; i < end_x_cg; ++i) {
+            out[IDX_p(i,j)] = ( -     in[IDX(i-1, j)]
+                              + 2.0*in[IDX(i,   j)]
+                              -     in[IDX(i+1, j)])*dx2i
+                          + ( -     in[IDX(i, jm1)]
+                              + 2.0*in[IDX(i,   j)]
+                              -     in[IDX(i, jp1)])*dy2i;
+        }
+        jm1++;
+        jp1++;
+    
+    }
+
+
