@@ -1,6 +1,7 @@
 #include <iostream>
 #include "mpi.h"
 #include <cmath>
+#include <chrono>
 using namespace std;
 
 #include <boost/program_options.hpp>
@@ -18,6 +19,7 @@ int main(int argc, char **argv, int argc_mpi, char* argv_mpi[])
     double* param_double = new double[5];
     int* param_int = new int[2];
     //Initialising MPI, comm, rank and size 
+    int periodic[2] = {0,0}; // Non-periodic
     MPI_Init(&argc_mpi,&argv_mpi);
     int rank, size ;
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
@@ -78,6 +80,7 @@ int main(int argc, char **argv, int argc_mpi, char* argv_mpi[])
         Re = vm["Re"].as<double>();
         param_double[4] = Re;
     }
+    auto t_start = std::chrono::steady_clock::now();
     //Broadcasting values across all ranks;
     MPI_Bcast(param_double,5,MPI_DOUBLE,0,MPI_COMM_WORLD);
     MPI_Bcast(param_int,2,MPI_INT,0,MPI_COMM_WORLD);
@@ -96,81 +99,75 @@ int main(int argc, char **argv, int argc_mpi, char* argv_mpi[])
     //Cartesian Grid implementation
     int* dim_prcs = new int[2]();
     MPI_Dims_create(size,2,dim_prcs);
-    //int loc_nx = Nx/dim_prcs[0];
-    //int loc_ny = Ny/dim_prcs[1];
+
     MPI_Comm cartesian_comm;
-    int periodic[2] = {0,0}; // Non-periodic
-    MPI_Cart_create(MPI_COMM_WORLD, 2, dim_prcs, periodic, 0, &cartesian_comm);
-   
+    MPI_Cart_create(MPI_COMM_WORLD, 2, dim_prcs, periodic, 1, &cartesian_comm);
     int coords[2];
     //Coordinate implementation
-    //MPI_Comm_rank(cartesian_comm,&rank);
+    MPI_Comm_rank(cartesian_comm,&rank);
+    //MPI_Cart_rank(cartesian_comm, coords, &rank);
     int left;
     int right;
     int down;
     int up;
-    MPI_Cart_coords(cartesian_comm,rank,2,coords);
     MPI_Cart_shift(cartesian_comm, 0, 1, &left, &right);
     MPI_Cart_shift(cartesian_comm, 1, 1, &down, &up);
-    MPI_Cart_rank(cartesian_comm, coords, &rank);
+    MPI_Cart_coords(cartesian_comm,rank,2,coords);
 
     //Load Balancing
-    
-    int rem_x     = Nx % size;            // remainder
-    int min_loc_nx    = (Nx - rem_x) / size;      // minimum size of chunk
-    int    start_x = 0;                   // start index of chunk
-    int    end_x  = 0;                   // end index of chunk
-    if (rank < (Nx % size)) {            // for ranks < r, chunk is size k + 1
-        min_loc_nx++;
-        start_x = min_loc_nx * rank;
-        end_x   = min_loc_nx* (rank + 1);
+    int loc_nx;
+    int loc_ny;
+    int k_x;
+    int k_y;
+    int r_x = Nx % dim_prcs[0];
+    k_x     = (Nx - r_x) / dim_prcs[0];
+    if (coords[0] < (Nx % dim_prcs[0])) {           
+        k_x++;
     }
-    else {                              // for ranks > r, chunk size is k
-        start_x = (min_loc_nx+1) * rem_x + min_loc_nx * (rank - rem_x);
-        end_x  = (min_loc_nx+1) * rem_x + min_loc_nx * (rank - rem_x+ 1);
-    }
-    int loc_nx = end_x - start_x;
-
-    int rem_y     = Ny % size;            // remainder
-    int min_loc_ny    = (Ny - rem_y) / size;      // minimum size of chunk
-    int    start_y = 0;                   // start index of chunk
-    int    end_y  = 0;                   // end index of chunk
-    if (rank < (Ny % size)) {            // for ranks < r, chunk is size k + 1
-        min_loc_ny++;
-        start_y = min_loc_ny * rank;
-        end_y   = min_loc_ny* (rank + 1);
-    }
-    else {                              // for ranks > r, chunk size is k
-        start_y = (min_loc_ny+1) * rem_y + min_loc_ny * (rank - rem_y);
-        end_y  = (min_loc_nx+1) * rem_y + min_loc_ny * (rank - rem_y+ 1);
-    }
-    int loc_ny = end_y - start_y;
-
+    loc_nx = k_x;
+    int r_y = Ny % dim_prcs[1];      
+    k_y    = (Ny - r_y) / dim_prcs[1];
+    if (coords[1] < (Ny % dim_prcs[1])) {           
+        k_y++;
+    }  
+    loc_ny = k_y;
+    double loc_lx = Lx/dim_prcs[0];
+    double loc_ly = Ly/dim_prcs[1];
 
     
 
     LidDrivenCavity* solver = new LidDrivenCavity();
+    solver->SetDomainSize(loc_lx,loc_ly);
     solver->SetGridSize(loc_nx,loc_ny);
     solver->SetTimeStep(dt);
     solver->SetFinalTime(T);
     solver->SetReynoldsNumber(Re);
     
-    /*
+    
     if(rank == 0)
     {
-        solver->PrintConfiguration();
+        solver->PrintConfiguration(size);
     }
-    */
+    MPI_Barrier(cartesian_comm);
     solver->Initialise();
 
+    
     //solver->WriteSolution("ic.txt");
-    solver->Integrate(cartesian_comm, left, right, up, down, rank);
-
+    //solver->Integrate(cartesian_comm, left, right, up, down, rank);
     //solver->WriteSolution("final.txt");
-    MPI_Comm_free(&cartesian_comm);    
+    
+    
+    MPI_Comm_free(&cartesian_comm);  
     MPI_Finalize();
     delete[] param_double;
     delete[] param_int;
     delete[] dim_prcs;
+    auto t_end = std::chrono::steady_clock::now();
+    auto t_total = std::chrono::duration_cast<std::chrono::seconds>(t_end - t_start);
+    auto t_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t_end - t_start -t_total);
+    if(rank == 0)
+    {
+        std::cout << "Elapsed time:" << t_total.count() << " s " << t_ms.count() << " ms "  << std::endl;
+    }
     return 0;
 }

@@ -5,7 +5,7 @@
 #include <cmath>
 #include <mpi.h>
 using namespace std;
-
+#include <omp.h>
 #include <cblas.h>
 
 /**
@@ -100,10 +100,18 @@ void LidDrivenCavity::Initialise()
     vsolve = new double[Nx*Ny]();
     ssolve = new double[Nx*Ny]();
     cg  = new SolverCG(Nx, Ny, dx, dy);
-    in_grd_x = new double[Ny]();
-    out_grd_x = new double[Ny]();
-    in_grd_y = new double[Nx]();
-    out_grd_y = new double[Nx]();
+    in_grd_x = new double[Ny];
+    out_grd_x = new double[Ny];
+    in_grd_y = new double[Nx];
+    out_grd_y = new double[Nx];
+    in_grd_x2 = new double[Ny];
+    out_grd_x2 = new double[Ny];
+    in_grd_y2 = new double[Nx];
+    out_grd_y2 = new double[Nx];
+    in_grd_x3 = new double[Ny];
+    out_grd_x3 = new double[Ny];
+    in_grd_y3 = new double[Nx];
+    out_grd_y3 = new double[Nx];
 }
 
 /**
@@ -118,9 +126,9 @@ void LidDrivenCavity::Integrate(MPI_Comm comm, int left, int right, int up, int 
             std::cout << "Step: " << setw(8) << t
                     << "  Time: " << setw(8) << t*dt
                     << std::endl;
-            
-    Advance(comm, left, right, up, down, rank);
+            Advance(comm, left, right, up, down, rank);       
     }
+    
 }
 
 /**
@@ -180,13 +188,13 @@ void LidDrivenCavity::WriteSolution(std::string file)
 /**
  * @brief Outputting configuration onto screen 
 */
-void LidDrivenCavity::PrintConfiguration()
+void LidDrivenCavity::PrintConfiguration(int size)
 {
     {
-        cout << "Grid size: " << Nx*size << " x " << Ny*size << endl;
+        cout << "Grid size: " << Nx*sqrt(size) << " x " << Ny*sqrt(size) << endl;
         cout << "Spacing:   " << dx << " x " << dy << endl;
-        cout << "Length:    " << Lx << " x " << Ly << endl;
-        cout << "Grid pts:  " << Npts*size*size << endl;
+        cout << "Length:    " << Lx*sqrt(size) << " x " << Ly*sqrt(size) << endl;
+        cout << "Grid pts:  " << Npts*sqrt(size)*sqrt(size) << endl;
         cout << "Timestep:  " << dt << endl;
         cout << "Steps:     " << ceil(T/dt) << endl;
         cout << "Reynolds number: " << Re << endl;
@@ -219,6 +227,14 @@ void LidDrivenCavity::CleanUp()
         delete[] out_grd_x;
         delete[] in_grd_y;
         delete[] out_grd_y;
+        delete[] in_grd_x2;
+        delete[] out_grd_x2;
+        delete[] in_grd_y2;
+        delete[] out_grd_y2;
+        delete[] in_grd_x3;
+        delete[] out_grd_x3;
+        delete[] in_grd_y3;
+        delete[] out_grd_y3;
     }
 }
 
@@ -242,29 +258,26 @@ void LidDrivenCavity::Advance(MPI_Comm comm, int left, int right, int up, int do
     double dx2i = 1.0/dx/dx;
     double dy2i = 1.0/dy/dy;
 
-    
-
     // Compute interior vorticity
-    for (int i = 1; i < Nx+1; ++i) {
-        for (int j = 1; j < Ny+1; ++j) {
+  #pragma omp parallel for collapse(2)
+    for (int i = 1; i < Nx+1; ++i) 
+    {
+        for (int j = 1; j < Ny+1; ++j) 
+        {
             v[IDX_p(i,j)] = dx2i*(
                     2.0 * s[IDX_p(i,j)] - s[IDX_p(i+1,j)] - s[IDX_p(i-1,j)])
                         + 1.0/dy/dy*(
                     2.0 * s[IDX_p(i,j)] - s[IDX_p(i,j+1)] - s[IDX_p(i,j-1)]);
         }
     }
+   
 
-    //Cartesian shift to apply boundary conditions 
-    //Assigning bottom boundary condition 
-    int start_x; 
-    int start_y;
-    int end_x;
-    int end_y;
+    //Applying variable loop bounds to handle boundary vs interior update steps (time advance)
+    int start_y = (down == MPI_PROC_NULL) ? 2 : 1;
+    int end_y = (up == MPI_PROC_NULL) ? Ny: Ny +1 ;
+    int end_x = (right == MPI_PROC_NULL) ? Nx : Ny +1;
+    int start_x = (left == MPI_PROC_NULL) ? 2 : 1;
 
-    start_y = (down == MPI_PROC_NULL) ? 2 : 1;
-    end_y = (up == MPI_PROC_NULL) ? Ny: Ny + 1 ;
-    end_x = (right == MPI_PROC_NULL) ? Nx  : Nx+1;
-    start_x = (left == MPI_PROC_NULL) ? 2 : 1;
     
     if(down == MPI_PROC_NULL)
     {
@@ -303,7 +316,6 @@ void LidDrivenCavity::Advance(MPI_Comm comm, int left, int right, int up, int do
             v[IDX_p(1,j)]    = 2.0 * dx2i * (s[IDX_p(1,j)]    - s[IDX_p(2,j)]);
         }
     }
-
     
     //Implementing guard cell around subdomain (repeated for each rank)
     //Sending information from left guard cell to right
@@ -313,27 +325,24 @@ void LidDrivenCavity::Advance(MPI_Comm comm, int left, int right, int up, int do
         out_grd_x[j-1] = v[IDX_p(Nx+1,j)];
     }
     MPI_Sendrecv(in_grd_x,Ny,MPI_DOUBLE,left,0,out_grd_x,Ny,MPI_DOUBLE,right,0,comm,MPI_STATUS_IGNORE);
-    for(int j = 1; j < Ny +1 ; ++j)
+    for(int j = 1; j <= Ny  ; ++j)
     {
         v[IDX_p(Nx+1,j)] = out_grd_x[j-1];
     }
-
-
+    
     //Right guard cell to left
     for(int j = 1; j <= Ny;++j)
     {
         in_grd_x[j-1] = v[IDX_p(Nx,j)];
         out_grd_x[j-1] = v[IDX_p(0,j)];
     }
-
-    
-    MPI_Sendrecv(in_grd_x,Ny,MPI_DOUBLE,right,0,out_grd_x,Ny,MPI_DOUBLE,left,0,comm,MPI_STATUS_IGNORE);
+    MPI_Sendrecv(in_grd_x,Ny,MPI_DOUBLE,right,0,out_grd_x,Ny,MPI_DOUBLE,left,0,comm, MPI_STATUS_IGNORE);
     for(int j = 1; j <=Ny;++j)
     {
         v[IDX_p(0,j)] = out_grd_x[j-1];
     }
 
-
+    
     // In y direction bottom to top
     for(int i = 1; i <= Nx ; ++i)
     {
@@ -358,8 +367,9 @@ void LidDrivenCavity::Advance(MPI_Comm comm, int left, int right, int up, int do
         v[IDX_p(i,0)] = out_grd_y[i-1];
     }
 
-    
-    
+   #pragma omp parallel for collapse(2)\
+   default(shared) \
+   schedule(static)  \
     // Time advance vorticity
     for (int i = start_x; i < end_x; ++i) {
         for (int j = start_y; j < end_y; ++j) {
@@ -382,50 +392,52 @@ void LidDrivenCavity::Advance(MPI_Comm comm, int left, int right, int up, int do
  
     for(int j = 1; j <= Ny; ++j)
     {
-        in_grd_x[j-1] = v[IDX_p(1,j)];
-        out_grd_x[j-1] = v[IDX_p(Nx+1,j)];
+        in_grd_x2[j-1] = v[IDX_p(1,j)];
+        out_grd_x2[j-1] = v[IDX_p(Nx+1,j)];
     }
-    MPI_Sendrecv(in_grd_x,Ny,MPI_DOUBLE,left,0,out_grd_x,Ny,MPI_DOUBLE,right,0,comm,MPI_STATUS_IGNORE);
+    MPI_Sendrecv(in_grd_x2,Ny,MPI_DOUBLE,left,0,out_grd_x2,Ny,MPI_DOUBLE,right,0,comm,MPI_STATUS_IGNORE);
     for(int j = 1; j <= Ny ; ++j)
     {
-        v[IDX_p(Nx+1,j)] = out_grd_x[j-1];
+        v[IDX_p(Nx+1,j)] = out_grd_x2[j-1];
     }
 
     //Right guard cell to left
     for(int j = 1; j <= Ny;++j)
     {
-        in_grd_x[j-1] = v[IDX_p(Nx,j)];
-        out_grd_x[j-1] = v[IDX_p(0,j)];
+        in_grd_x2[j-1] = v[IDX_p(Nx,j)];
+        out_grd_x2[j-1] = v[IDX_p(0,j)];
     }
-    MPI_Sendrecv(in_grd_x,Ny,MPI_DOUBLE,right,0,out_grd_x,Ny,MPI_DOUBLE,left,0,comm,MPI_STATUS_IGNORE);
+    MPI_Sendrecv(in_grd_x2,Ny,MPI_DOUBLE,right,0,out_grd_x2,Ny,MPI_DOUBLE,left,0,comm,MPI_STATUS_IGNORE);
+    for(int j =1; j <=Ny;++j)
+    {
+        v[IDX_p(0,j)] = out_grd_x2[j-1];
+    }
 
     //Y directions
     for(int i = 1; i <= Nx ; ++i)
     {
-        in_grd_y[i-1] = v[IDX_p(i,1)];
-        out_grd_y[i-1] = v[IDX_p(i,Ny+1)];
+        in_grd_y2[i-1] = v[IDX_p(i,1)];
+        out_grd_y2[i-1] = v[IDX_p(i,Ny+1)];
     }
-    MPI_Sendrecv(in_grd_y,Nx,MPI_DOUBLE,down,0,out_grd_y,Nx,MPI_DOUBLE,up,0,comm,MPI_STATUS_IGNORE);
+    MPI_Sendrecv(in_grd_y2,Nx,MPI_DOUBLE,down,0,out_grd_y2,Nx,MPI_DOUBLE,up,0,comm,MPI_STATUS_IGNORE);
     for(int i = 1; i <= Nx;++i)
     {
-        v[IDX_p(i,Ny+1)] = out_grd_y[i-1];
+        v[IDX_p(i,Ny+1)] = out_grd_y2[i-1];
     }
 
-
+    //Up to down
     for(int i = 1; i <= Nx ; ++i)
     {
-        in_grd_y[i-1] = v[IDX_p(i,Ny)];
-        out_grd_y[i-1] = v[IDX_p(i,0)];
+        in_grd_y2[i-1] = v[IDX_p(i,Ny)];
+        out_grd_y2[i-1] = v[IDX_p(i,0)];
     }
-    MPI_Sendrecv(in_grd_y,Nx,MPI_DOUBLE,up,0,out_grd_y,Nx,MPI_DOUBLE,down,0,comm,MPI_STATUS_IGNORE);
+    MPI_Sendrecv(in_grd_y2,Nx,MPI_DOUBLE,up,0,out_grd_y2,Nx,MPI_DOUBLE,down,0,comm,MPI_STATUS_IGNORE);
     for(int i = 1; i<= Nx; ++i)
     {
-        v[IDX_p(i,0)] = out_grd_y[i-1];
+        v[IDX_p(i,0)] = out_grd_y2[i-1];
     }
 
-
     //Calling of solve method 
-    
     //Removing guard cells for cg algorithim
     for(int i = 1; i <= Nx ; ++i)
     {
@@ -434,7 +446,6 @@ void LidDrivenCavity::Advance(MPI_Comm comm, int left, int right, int up, int do
             vsolve[IDX(i-1,j-1)] = v[IDX_p(i,j)];
         }
     }
-
     for(int i = 1; i <= Nx ; ++i)
     {
         for(int j = 1; j <= Ny ; ++j)
@@ -453,7 +464,6 @@ void LidDrivenCavity::Advance(MPI_Comm comm, int left, int right, int up, int do
             v[IDX_p(i,j)] = vsolve[IDX(i-1,j-1)];
         }
     }
-
     for(int i = 1; i <= Nx ; ++i)
     {
         for(int j = 1 ; j <= Ny ; ++j)
@@ -465,44 +475,48 @@ void LidDrivenCavity::Advance(MPI_Comm comm, int left, int right, int up, int do
     //Sendrecv for streamfunction
     for(int j = 1; j <= Ny; ++j)
     {
-        in_grd_x[j-1] = s[IDX_p(1,j)];
-        out_grd_x[j-1] = s[IDX_p(Nx+1,j)];
+        in_grd_x3[j-1] = s[IDX_p(1,j)];
+        out_grd_x3[j-1] = s[IDX_p(Nx+1,j)];
     }
-    MPI_Sendrecv(in_grd_x,Ny,MPI_DOUBLE,left,0,out_grd_x,Ny,MPI_DOUBLE,right,0,comm,MPI_STATUS_IGNORE);
+    MPI_Sendrecv(in_grd_x3,Ny,MPI_DOUBLE,left,0,out_grd_x3,Ny,MPI_DOUBLE,right,0,comm,MPI_STATUS_IGNORE);
     for(int j = 1; j <= Ny ; ++j)
     {
-        s[IDX_p(Nx+1,j)] = out_grd_x[j-1];
+        s[IDX_p(Nx+1,j)] = out_grd_x3[j-1];
     }
 
     //Right guard cell to left
     for(int j = 1; j <= Ny;++j)
     {
-        in_grd_x[j-1] = s[IDX_p(Nx,j)];
-        out_grd_x[j-1] = s[IDX_p(0,j)];
+        in_grd_x3[j-1] = s[IDX_p(Nx,j)];
+        out_grd_x3[j-1] = s[IDX_p(0,j)];
     }
-    MPI_Sendrecv(in_grd_x,Ny,MPI_DOUBLE,right,0,out_grd_x,Ny,MPI_DOUBLE,left,0,comm,MPI_STATUS_IGNORE);
+    MPI_Sendrecv(in_grd_x3,Ny,MPI_DOUBLE,right,0,out_grd_x3,Ny,MPI_DOUBLE,left,0,comm,MPI_STATUS_IGNORE);
+    for(int j = 1; j <=Ny ; ++j)
+    {
+        s[IDX_p(0,j)] = out_grd_x3[j-1];
+    }
 
     // Y direction
     for(int i = 1; i <= Nx ; ++i)
     {
-        in_grd_y[i-1] = s[IDX_p(i,1)];
-        out_grd_y[i-1] = s[IDX_p(i,Ny+1)];
+        in_grd_y3[i-1] = s[IDX_p(i,1)];
+        out_grd_y3[i-1] = s[IDX_p(i,Ny+1)];
     }
-    MPI_Sendrecv(in_grd_y,Nx,MPI_DOUBLE,down,0,out_grd_y,Nx,MPI_DOUBLE,up,0,comm,MPI_STATUS_IGNORE);
+    MPI_Sendrecv(in_grd_y3,Nx,MPI_DOUBLE,down,0,out_grd_y3,Nx,MPI_DOUBLE,up,0,comm,MPI_STATUS_IGNORE);
     for(int i = 1; i <= Nx;++i)
     {
-        s[IDX_p(i,Ny+1)] = out_grd_y[i-1];
-    }
-    for(int i = 1; i <=Nx ; ++i)
-    {
-        in_grd_y[i-1] = s[IDX_p(i,Ny)];
-        out_grd_y[i-1] = s[IDX_p(i,0)];
-    }
-    MPI_Sendrecv(in_grd_y,Nx,MPI_DOUBLE,up,0,out_grd_y,Nx,MPI_DOUBLE,down,0,comm,MPI_STATUS_IGNORE);
-    for(int i = 1; i<= Nx; ++i)
-    {
-        s[IDX_p(i,0)] = out_grd_y[i-1];
+        s[IDX_p(i,Ny+1)] = out_grd_y3[i-1];
     }
 
+    for(int i = 1; i <=Nx ; ++i)
+    {
+        in_grd_y3[i-1] = s[IDX_p(i,Ny)];
+        out_grd_y3[i-1] = s[IDX_p(i,0)];
+    }
+    MPI_Sendrecv(in_grd_y3,Nx,MPI_DOUBLE,up,0,out_grd_y3,Nx,MPI_DOUBLE,down,0,comm,MPI_STATUS_IGNORE);
+    for(int i = 1; i<= Nx; ++i)
+    {
+        s[IDX_p(i,0)] = out_grd_y3[i-1];
+    }
 
 }

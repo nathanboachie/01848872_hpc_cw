@@ -35,14 +35,17 @@ private:
     double* tsolve = nullptr;
     double* tsolve1 = nullptr;
     MPI_Comm comm;
-    double* in_cg_x = nullptr;
-    double* out_cg_x = nullptr;
-    double* in_cg_y = nullptr;
-    double* out_cg_y = nullptr;
+    double* in_gc_x = nullptr;
+    double* in_gc_y = nullptr;
+    double* out_gc_x = nullptr;
+    double* out_gc_y = nullptr;
 
     void ApplyOperator(double* p, double* t, MPI_Comm comm, int left, int right, int up, int down);
     void Precondition(double* p, double* t, int left, int right, int up, int down);
     void ImposeBC(double* p, int left, int right, int up, int down);
-
+    double OMP_InnerProd(double* a, double* b, int n);
+    double OMP_Norm(double* a, int n);
+    void OMP_Copy(double*a, double*b, int n);
+    void OMP_Daxpy(double*x , double*y, double alpha,int n);
 };
 

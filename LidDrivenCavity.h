@@ -25,19 +25,8 @@ public:
     void Initialise();
     void Integrate(MPI_Comm comm, int left, int right, int up, int down, int rank);
     void WriteSolution(std::string file);
-    void PrintConfiguration();
-    int* dim_prcs;
-    int rank;
-    int size;
-    int left;
-    int up; 
-    int right;
-    int down;
-    MPI_Comm comm;
-    int size_grid;
-    int coords[2];
+    void PrintConfiguration(int size);
     
-
 private:
     double* v   = nullptr;
     double* vnew = nullptr;
@@ -45,24 +34,40 @@ private:
     double* ssolve = nullptr;
     double* s   = nullptr;
     double* tmp = nullptr;
-    
-
-    double dt   = 0.01;
-    double T    = 1.0;
-    double dx;
-    double dy;
-    int    Nx   = 9;
-    int    Ny   = 9;
-    int    Npts = 81;
-    double Lx   = 1.0;
-    double Ly   = 1.0;
-    double Re   = 10;
-    double U    = 1.0;
-    double nu   = 0.1;
     double* in_grd_x = nullptr;
     double* out_grd_x = nullptr;
     double* in_grd_y = nullptr;
     double* out_grd_y = nullptr;
+    double* in_grd_x2 = nullptr;
+    double* out_grd_x2 = nullptr;
+    double* in_grd_y2 = nullptr;
+    double* out_grd_y2 = nullptr;
+    double* in_grd_x3 = nullptr;
+    double* out_grd_x3 = nullptr;
+    double* in_grd_y3 = nullptr;
+    double* out_grd_y3 = nullptr;
+    
+
+    double dt;
+    double T ;
+    double dx;
+    double dy;
+    int    Nx ;
+    int    Ny ;
+    int    Npts;
+    double Lx ;
+    double Ly ;
+    double Re ;
+    double U = 1.0 ;
+    double nu ;
+    int rank;
+    int size;
+    int left;
+    int up; 
+    int right;
+    int down;
+    MPI_Comm comm;
+    
 
     
 
