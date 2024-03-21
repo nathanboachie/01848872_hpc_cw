@@ -134,56 +134,48 @@ void LidDrivenCavity::Integrate(MPI_Comm comm, int left, int right, int up, int 
 /**
  * @brief Writing simulation to output files for data analysis
 */
-void LidDrivenCavity::WriteSolution(std::string file)
-{   
-    double* u0 = new double[(Nx+2)*(Ny+2)]();
-    double* u1 = new double[(Nx+2)*(Ny+2)]();
-    double* u0_global = new double[(Nx+2)*size*(Ny+2)*size]();
-    double* u1_global = new double[(Nx+2)*size*(Ny+2)*size]();
-    double* v_global = new double[(Nx+2)*size*(Ny+2)*size]();
-    double* s_global = new double[(Nx+2)*size*(Ny+2)*size]();
-    for (int i = 1; i < Nx+1; ++i) {
-        for (int j = 1; j < Ny+1; ++j) {
-            u0[IDX_p(i,j)] =  (s[IDX_p(i,j+1)] - s[IDX_p(i,j)]) / dy;
-            u1[IDX_p(i,j)] = -(s[IDX_p(i+1,j)] - s[IDX_p(i,j)]) / dx;
+void LidDrivenCavity::WriteSolution(std::string file )
+{
+    double* u0 = new double[Nx*Ny]();
+    double* u1 = new double[Nx*Ny]();
+    double* s_loc = new double[Nx*Ny]();
+    for(int i = 1; i <= Nx ; ++i)
+    {
+        for(int j = 1; j <= Ny ; ++j)
+        {
+            s_loc[IDX(i-1,j-1)] = s[IDX_p(i,j)];
         }
     }
-    for (int i = 1; i < Nx+1; ++i) {
-        u0[IDX_p(i,Ny)] = U;
+    for (int i = 1; i < Nx - 1; ++i) {
+        for (int j = 1; j < Ny - 1; ++j) {
+            u0[IDX(i,j)] =  (s_loc[IDX(i,j+1)] - s_loc[IDX(i,j)]) / dy;
+            u1[IDX(i,j)] = -(s_loc[IDX(i+1,j)] - s_loc[IDX(i,j)]) / dx;
+        }
     }
+    for (int i = 0; i < Nx; ++i) {
+        u0[IDX(i,Ny-1)] = U;
+    }
+    
 
-
-    MPI_Allgather(u0,(Nx+2)*(Ny+2), MPI_DOUBLE, u0_global,(Nx+2)*(Ny+2), MPI_DOUBLE, MPI_COMM_WORLD);
-    MPI_Allgather(u1,(Nx+2)*(Ny+2), MPI_DOUBLE, u1_global, (Nx+2)*(Ny+2), MPI_DOUBLE, MPI_COMM_WORLD);
-    MPI_Allgather(v,(Nx+2)*(Ny+2), MPI_DOUBLE, v_global, (Nx+2)*(Ny+2), MPI_DOUBLE, MPI_COMM_WORLD);
-    MPI_Allgather(s,(Nx+2)*(Ny+2), MPI_DOUBLE, s_global, (Nx+2)*(Ny+2), MPI_DOUBLE, MPI_COMM_WORLD);
-    if(rank == 0)
-    {
     std::ofstream f(file.c_str());
     std::cout << "Writing file " << file << std::endl;
     int k = 0;
+    for (int i = 0; i < Nx; ++i)
     {
-        for (int i = 1; i < (Nx)*size+1; ++i)
+        for (int j = 0; j < Ny; ++j)
         {
-            for (int j = 1; j < (Ny)*size+1; ++j)
-            {
-                k = IDX_Global(i, j);
-                f << i * dx << " " << j * dy << " " << v_global[k] <<  " " << s_global[k] 
-                << " " << u0_global[k] << " " << u1_global[k] << std::endl;
-            }
-            f << std::endl;
+            k = IDX(i, j);
+            f << i * dx << " " << j * dy << " " << v[k] <<  " " << s[k] 
+              << " " << u0[k] << " " << u1[k] << std::endl;
         }
-        f.close();
+        f << std::endl;
     }
-    }
+    f.close();
 
     delete[] u0;
     delete[] u1;
-    delete[] u0_global;
-    delete[] u1_global;
-    delete[] v_global;
-    delete[] s_global;
 }
+
 
 /**
  * @brief Outputting configuration onto screen 
@@ -247,7 +239,49 @@ void LidDrivenCavity::UpdateDxDy()
     dy = Ly / (Ny-1);
     Npts = Nx * Ny;
 }
+/*
+void LidDrivenCavity::Local2Global(int rank, int* dim_prcs, double* local_array, double* global_array, MPI_Comm cart_comm)
+{
+    int coords[2];
+    MPI_Cart_coords(cart_comm, rank, 2, coords);
 
+    // Assuming Nx and Ny include ghost cells. Adjust for actual data dimensions.
+    int local_inner_Nx = Nx - 2; // Excluding ghost cells
+    int local_inner_Ny = Ny - 2;
+
+    // Global dimensions excluding ghost cells
+    int global_Nx = local_inner_Nx * dim_prcs[0];
+    int global_Ny = local_inner_Ny * dim_prcs[1];
+
+    // Define the local subarray datatype excluding ghost cells
+    MPI_Datatype local_subarray;
+    int starts[2] = {1, 1}; // Assuming ghost cells are 1 layer, adjust if different
+    int subSizes[2] = {local_inner_Nx, local_inner_Ny};
+    int bigSizes[2] = {Nx, Ny}; // Size including ghost cells
+    MPI_Type_create_subarray(2, bigSizes, subSizes, starts, MPI_ORDER_C, MPI_DOUBLE, &local_subarray);
+    MPI_Type_commit(&local_subarray);
+
+    // Only the root process needs to define a global array datatype
+    MPI_Datatype global_array_type;
+    if (rank == 0) {
+        MPI_Type_contiguous(global_Nx * global_Ny, MPI_DOUBLE, &global_array_type);
+        MPI_Type_commit(&global_array_type);
+    }
+
+    // Calculate displacements for each process's data in the global array
+    int disp = (coords[0] * local_inner_Nx * global_Ny) + (coords[1] * local_inner_Ny);
+
+    // Gather the local arrays into the global array on the root process
+    MPI_Gatherv(MPI_BOTTOM, 1, local_subarray, 
+                global_array, NULL, &disp, global_array_type, 
+                0, cart_comm);
+
+    MPI_Type_free(&local_subarray);
+    if (rank == 0) {
+        MPI_Type_free(&global_array_type);
+    }
+}
+*/
 /**
  * @brief Find vortcity at boundary and interior grid points then integrate and advance, call solver to integrate poission equation
 */
@@ -259,7 +293,7 @@ void LidDrivenCavity::Advance(MPI_Comm comm, int left, int right, int up, int do
     double dy2i = 1.0/dy/dy;
 
     // Compute interior vorticity
-  #pragma omp parallel for collapse(2)
+  #pragma omp parallel for collapse(2) shared(v, s, dx2i, dy) schedule(static)
     for (int i = 1; i < Nx+1; ++i) 
     {
         for (int j = 1; j < Ny+1; ++j) 
@@ -281,6 +315,7 @@ void LidDrivenCavity::Advance(MPI_Comm comm, int left, int right, int up, int do
     
     if(down == MPI_PROC_NULL)
     {
+        #pragma omp parallel for
         for (int i = 1; i < Nx+1; ++i) 
         {
         // bottom
@@ -289,7 +324,8 @@ void LidDrivenCavity::Advance(MPI_Comm comm, int left, int right, int up, int do
     }
     //Assiging top boundary condition
     if(up == MPI_PROC_NULL)
-    {
+    {   
+        #pragma omp parallel for
         for (int i = 1; i < Nx+1; ++i) 
         {
         // top
@@ -299,7 +335,8 @@ void LidDrivenCavity::Advance(MPI_Comm comm, int left, int right, int up, int do
     
     //Assigning right boundary condition
     if(right == MPI_PROC_NULL)
-    {
+    {   
+        #pragma omp parallel for
         for (int j = 1; j < Ny+1; ++j) 
         {
             // right
@@ -310,6 +347,7 @@ void LidDrivenCavity::Advance(MPI_Comm comm, int left, int right, int up, int do
     //Assigning left boundary condition
     if(left == MPI_PROC_NULL)
     {
+        #pragma omp parallel for
         for (int j = 1; j < Ny+1; ++j) 
         {
             // left
@@ -367,9 +405,7 @@ void LidDrivenCavity::Advance(MPI_Comm comm, int left, int right, int up, int do
         v[IDX_p(i,0)] = out_grd_y[i-1];
     }
 
-   #pragma omp parallel for collapse(2)\
-   default(shared) \
-   schedule(static)  \
+   #pragma omp parallel for collapse(2) default(shared) schedule(static)
     // Time advance vorticity
     for (int i = start_x; i < end_x; ++i) {
         for (int j = start_y; j < end_y; ++j) {
@@ -439,6 +475,7 @@ void LidDrivenCavity::Advance(MPI_Comm comm, int left, int right, int up, int do
 
     //Calling of solve method 
     //Removing guard cells for cg algorithim
+    #pragma omp for collapse(2)
     for(int i = 1; i <= Nx ; ++i)
     {
         for(int j = 1; j <= Ny ; ++j)
@@ -446,6 +483,7 @@ void LidDrivenCavity::Advance(MPI_Comm comm, int left, int right, int up, int do
             vsolve[IDX(i-1,j-1)] = v[IDX_p(i,j)];
         }
     }
+    #pragma omp for collapse(2)
     for(int i = 1; i <= Nx ; ++i)
     {
         for(int j = 1; j <= Ny ; ++j)
@@ -457,6 +495,7 @@ void LidDrivenCavity::Advance(MPI_Comm comm, int left, int right, int up, int do
     cg->Solve(vsolve, ssolve,comm, left, right, up, down, rank);
 
     // Re-adding padding back into loops
+    #pragma omp for collapse(2)
     for(int i = 1; i <= Nx ; ++i)
     {
         for(int j = 1 ; j <= Ny ; ++j)
@@ -464,6 +503,7 @@ void LidDrivenCavity::Advance(MPI_Comm comm, int left, int right, int up, int do
             v[IDX_p(i,j)] = vsolve[IDX(i-1,j-1)];
         }
     }
+    #pragma omp for collapse(2)
     for(int i = 1; i <= Nx ; ++i)
     {
         for(int j = 1 ; j <= Ny ; ++j)

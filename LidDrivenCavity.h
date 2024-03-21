@@ -27,6 +27,7 @@ public:
     void WriteSolution(std::string file);
     void PrintConfiguration(int size);
     
+    
 private:
     double* v   = nullptr;
     double* vnew = nullptr;

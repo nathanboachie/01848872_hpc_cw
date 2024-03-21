@@ -1,7 +1,7 @@
 #include <iostream>
 #include "mpi.h"
 #include <cmath>
-#include <chrono>
+#include <omp.h>
 using namespace std;
 
 #include <boost/program_options.hpp>
@@ -80,7 +80,7 @@ int main(int argc, char **argv, int argc_mpi, char* argv_mpi[])
         Re = vm["Re"].as<double>();
         param_double[4] = Re;
     }
-    auto t_start = std::chrono::steady_clock::now();
+    
     //Broadcasting values across all ranks;
     MPI_Bcast(param_double,5,MPI_DOUBLE,0,MPI_COMM_WORLD);
     MPI_Bcast(param_int,2,MPI_INT,0,MPI_COMM_WORLD);
@@ -99,7 +99,6 @@ int main(int argc, char **argv, int argc_mpi, char* argv_mpi[])
     //Cartesian Grid implementation
     int* dim_prcs = new int[2]();
     MPI_Dims_create(size,2,dim_prcs);
-
     MPI_Comm cartesian_comm;
     MPI_Cart_create(MPI_COMM_WORLD, 2, dim_prcs, periodic, 1, &cartesian_comm);
     int coords[2];
@@ -134,8 +133,10 @@ int main(int argc, char **argv, int argc_mpi, char* argv_mpi[])
     double loc_lx = Lx/dim_prcs[0];
     double loc_ly = Ly/dim_prcs[1];
 
+    int loc_lx_int = int(loc_lx);
+    int loc_ly_int = int(loc_ly);
     
-
+    //Setting variables
     LidDrivenCavity* solver = new LidDrivenCavity();
     solver->SetDomainSize(loc_lx,loc_ly);
     solver->SetGridSize(loc_nx,loc_ny);
@@ -143,31 +144,26 @@ int main(int argc, char **argv, int argc_mpi, char* argv_mpi[])
     solver->SetFinalTime(T);
     solver->SetReynoldsNumber(Re);
     
-    
+    //Print config to rank zero
     if(rank == 0)
     {
         solver->PrintConfiguration(size);
     }
     MPI_Barrier(cartesian_comm);
+
+    //Initialise variables
     solver->Initialise();
 
-    
+    //Integrate and write solutions
     //solver->WriteSolution("ic.txt");
-    //solver->Integrate(cartesian_comm, left, right, up, down, rank);
+    solver->Integrate(cartesian_comm, left, right, up, down, rank);
     //solver->WriteSolution("final.txt");
     
-    
+    //Memory deallocation
     MPI_Comm_free(&cartesian_comm);  
     MPI_Finalize();
     delete[] param_double;
     delete[] param_int;
     delete[] dim_prcs;
-    auto t_end = std::chrono::steady_clock::now();
-    auto t_total = std::chrono::duration_cast<std::chrono::seconds>(t_end - t_start);
-    auto t_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t_end - t_start -t_total);
-    if(rank == 0)
-    {
-        std::cout << "Elapsed time:" << t_total.count() << " s " << t_ms.count() << " ms "  << std::endl;
-    }
     return 0;
 }

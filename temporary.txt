@@ -1,15 +1,19 @@
-    for (int j = start_y_cg; j < end_y_cg ; ++j) {
-        for (int i = start_x_cg; i < end_x_cg; ++i) {
-            out[IDX_p(i,j)] = ( -     in[IDX(i-1, j)]
-                              + 2.0*in[IDX(i,   j)]
-                              -     in[IDX(i+1, j)])*dx2i
-                          + ( -     in[IDX(i, jm1)]
-                              + 2.0*in[IDX(i,   j)]
-                              -     in[IDX(i, jp1)])*dy2i;
-        }
+
+int i, j;
+#pragma omp parallel for private(i, j)
+for (int j = start_y_cg; j < end_y_cg; ++j) {
+    for (int i = start_x_cg; i < end_x_cg; ++i) {
+        // Compute using dx2i
+        out[IDX_p(i,j)] = (-in[IDX_p(i-1, j)] + 2.0*in[IDX_p(i, j)] - in[IDX_p(i+1, j)]) * dx2i;
+    }
+}
+
+#pragma omp parallel for private(i, jm1, jp1)
+for (int j = start_y_cg; j < end_y_cg; ++j) {
+    for (int i = start_x_cg; i < end_x_cg; ++i) {
+        // Compute using dy2i and add to the previous result
+        out[IDX_p(i,j)] += (-in[IDX_p(i, jm1)] + 2.0*in[IDX_p(i, j)] - in[IDX_p(i, jp1)]) * dy2i;
         jm1++;
         jp1++;
-    
     }
-
-
+}

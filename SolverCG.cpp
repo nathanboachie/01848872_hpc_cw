@@ -76,7 +76,7 @@ void SolverCG::Solve(double* b, double* x, MPI_Comm comm, int left, int right, i
     double eps;
     double tol = 0.001;
 
-    eps = OMP_Norm(b,n); //Matrix norm
+    eps = cblas_dnrm2(n, b, 1);//Matrix norm
     MPI_Allreduce(&eps, &eps, 1, MPI_DOUBLE, MPI_SUM, comm);
     // If error below tolerance create a 0 vector for x0
     if (eps < tol * tol) {
@@ -124,15 +124,15 @@ void SolverCG::Solve(double* b, double* x, MPI_Comm comm, int left, int right, i
     }
     
 
-    OMP_Copy(b, r, n);   // r_0 = b (i.e. b)
+    cblas_dcopy(n, b, 1, r, 1);  // r_0 = b (i.e. b)
     ImposeBC(r, left, right, up , down);
    
-    OMP_Daxpy(t,r,-1.0,n); 
+    cblas_daxpy(n, -1.0, t, 1, r, 1);
     Precondition(r, z, left, right, up, down);
     
     
     // Assuming you want to print the contents of the 'out' vector with a left shift
-    OMP_Copy(z,p,n);// p_0 = r_0 
+    cblas_dcopy(n, z, 1, p, 1);// p_0 = r_0 
 
     k = 0;
     do {
@@ -172,50 +172,30 @@ void SolverCG::Solve(double* b, double* x, MPI_Comm comm, int left, int right, i
                 t[IDX(i-1,j-1)] = tsolve[IDX_p(i,j)];
             }
         }
-        /*
-        if(rank == 1)
-        {
-            for(int j = 0; j < Ny ; ++j)
-            {
-                for(int i = 0; i < Nx ; ++i)
-                {
-                cout << t[IDX(i,j)] << " ";
-                }
-                cout << endl;
-            }
-        }
-        */
+       
         
         
         //ALl reduce to make sure its the global alpha and beta being edited 
-        alpha = OMP_InnerProd(t, p,n);// alpha = p_k^T A p_k
+        alpha = cblas_ddot(n, t, 1, p, 1);// alpha = p_k^T A p_k
         MPI_Allreduce(&alpha, &alpha, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-        alpha =  OMP_InnerProd(r,z,n)/ alpha; // compute alpha_k 
+        alpha = cblas_ddot(n, r, 1, z, 1) / alpha; // compute alpha_k 
         MPI_Allreduce(&alpha, &alpha, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-        //if(rank ==0)
-        //{
-            //cout << "alpha is: " << alpha <<endl;
-        //}
-        beta  = OMP_InnerProd(r,z,n); // z_k^T r_k
+        beta  = cblas_ddot(n, r, 1, z, 1); // z_k^T r_k
         MPI_Allreduce(&beta, &beta, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-        //if(rank == 0)
-        //{
-            //cout << beta << endl;
-        //}
-        OMP_Daxpy(p,x,alpha,n); // x_{k+1} = x_k + alpha_k p_k
-        OMP_Daxpy(t,r,-alpha,n); // r_{k+1} = r_k - alpha_k A p_k
-        eps = OMP_Norm(r,n);
+        cblas_daxpy(n,  alpha, p, 1, x, 1); // x_{k+1} = x_k + alpha_k p_k
+        cblas_daxpy(n, -alpha, t, 1, r, 1); // r_{k+1} = r_k - alpha_k A p_k
+        eps = cblas_dnrm2(n, r, 1);
         MPI_Allreduce(&eps, &eps, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
         if (eps < tol*tol) {
             break;
         }
         Precondition(r, z, left, right, up, down);
-        beta = OMP_InnerProd(r,z,n)/ beta;
+        beta = cblas_ddot(n, r, 1, z, 1) / beta;
         MPI_Allreduce(&beta, &beta, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
        
-        OMP_Copy(z, t, n);
-        OMP_Daxpy(p,t,beta,n);
-        OMP_Copy(t, p, n);
+        cblas_dcopy(n, z, 1, t, 1);
+        cblas_daxpy(n, beta, p, 1, t, 1);
+        cblas_dcopy(n, t, 1, p, 1);
     
     } while (k < 5000); // Set a maximum number of iterations
 
@@ -302,19 +282,25 @@ void SolverCG::ApplyOperator(double* in, double* out, MPI_Comm comm, int left, i
     {
         in[IDX_p(i,0)] = out_gc_y[i-1];
     }
+
     
-    for (int j = start_y_cg  ; j < end_y_cg ; ++j) {
-        for (int i = start_x_cg ; i < end_x_cg ; ++i) {
+    #pragma omp parallel for shared(in, out, dx2i, dy2i, jm1, jp1) schedule(static)
+    for(int j = start_y_cg ; j < end_y_cg ; ++j)
+    {
+        for(int i = start_x_cg; i < end_x_cg; ++i)
+        {
             out[IDX_p(i,j)] = ( -     in[IDX_p(i-1, j)]
                                 + 2.0*in[IDX_p(i,   j)]
                                 -     in[IDX_p(i+1, j)])*dx2i
                             + ( -     in[IDX_p(i, jm1)]
                                 + 2.0*in[IDX_p(i,   j)]
                                 -     in[IDX_p(i, jp1)])*dy2i;
+        }
+        jm1++;
+        jp1++;
     }
-    jm1++;
-    jp1++;
-    }
+   
+    
 }
     
 
@@ -339,18 +325,18 @@ void SolverCG::Precondition(double* in, double* out, int left, int right, int up
     int start_x_pr = (left == MPI_PROC_NULL) ? 1 : 0;
    
     
-    #pragma omp for collapse(2)
-    for (i = start_x_pr; i < end_x_pr; ++i) 
-    {
-        for (j = start_y_pr; j < end_y_pr; ++j) 
-        {
-            out[IDX(i,j)] = in[IDX(i,j)]/factor;
+    #pragma omp parallel for collapse(2) shared(in, out, factor) schedule(static)
+    for (int i = start_x_pr; i < end_x_pr; ++i) {
+        for (int j = start_y_pr; j < end_y_pr; ++j) {
+            out[IDX(i, j)] = in[IDX(i, j)] / factor;
         }
     }
+
     
     
     if (down == MPI_PROC_NULL) 
-    {
+    {   
+        #pragma omp parallel for
         for (int i = 0; i < Nx; ++i) 
         {
             // bottom boundary condition
@@ -360,7 +346,8 @@ void SolverCG::Precondition(double* in, double* out, int left, int right, int up
 
     // Assigning top boundary condition
     if (up == MPI_PROC_NULL) 
-    {
+    {   
+        #pragma omp parallel for
         for (int i = 0; i < Nx ; ++i) {
             // top boundary condition
             out[IDX(i, Ny-1)] = in[IDX(i,Ny-1)];
@@ -370,6 +357,7 @@ void SolverCG::Precondition(double* in, double* out, int left, int right, int up
     // Assigning right boundary condition
     if (right == MPI_PROC_NULL) 
     {
+        #pragma omp parallel for
         for (int j = 0 ; j < Ny; ++j) {
             // right boundary condition
             out[IDX(Nx-1, j)] = in[IDX(Nx-1,j)];
@@ -379,6 +367,7 @@ void SolverCG::Precondition(double* in, double* out, int left, int right, int up
     // Assigning left boundary condition
     if (left == MPI_PROC_NULL) 
     {
+        #pragma omp parallel for
         for (int j = 0; j < Ny;  ++j) {
             // left boundary condition
             out[IDX(0, j)] = in[IDX(0,j)];
@@ -396,6 +385,7 @@ void SolverCG::ImposeBC(double* inout, int left, int right, int up, int down) {
 
     // Assigning bottom boundary condition 
     if (down == MPI_PROC_NULL) {
+        #pragma omp parallel for
         for (int i = 0; i < Nx; ++i) {
             // bottom boundary condition
             inout[IDX(i, 0)] = 0.0; //2.0 * dy2i * inout[IDX(i, 0)] - inout[IDX(i, 1)];
@@ -404,6 +394,7 @@ void SolverCG::ImposeBC(double* inout, int left, int right, int up, int down) {
 
     // Assigning top boundary condition
     if (up == MPI_PROC_NULL) {
+        #pragma omp parallel for
         for (int i = 0; i < Nx; ++i) {
             // top boundary condition
             inout[IDX(i, Ny-1)] = 0.0; //2.0 * dy2i * inout[IDX(i, Ny-1)] - inout[IDX(i, Ny-2)] - 2.0 * dyi * U;
@@ -412,6 +403,7 @@ void SolverCG::ImposeBC(double* inout, int left, int right, int up, int down) {
 
     // Assigning right boundary condition
     if (right == MPI_PROC_NULL) {
+        #pragma omp parallel for
         for (int j = 0; j < Ny; ++j) {
             // right boundary condition
             inout[IDX(Nx-1, j)] = 0.0; //2.0 * dx2i * inout[IDX(Nx-1, j)] - inout[IDX(Nx-2, j)];
@@ -420,6 +412,7 @@ void SolverCG::ImposeBC(double* inout, int left, int right, int up, int down) {
 
     // Assigning left boundary condition
     if (left == MPI_PROC_NULL) {
+        #pragma omp parallel for
         for (int j = 0; j < Ny; ++j) {
             // left boundary condition
             inout[IDX(0, j)] = 0.0; //2.0 * dx2i * inout[IDX(0, j)] - inout[IDX(1, j)];
