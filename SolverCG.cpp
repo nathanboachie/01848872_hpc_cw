@@ -67,6 +67,11 @@ SolverCG::~SolverCG()
  * @brief Applies Conjugate gradient method to solve Poisson's equation, using cblas library
  * @param b is the output vector in Ax = b
  * @param x is the vector to be solved 
+ * @param comm Cartesian communicator
+ * @param left Source rank x direction
+ * @param right Destination rank x direction
+ * @param up Destination rank y direction
+ * @param down source rank x direction
 */
 void SolverCG::Solve(double* b, double* x, MPI_Comm comm, int left, int right, int up, int down, int rank) {
     unsigned int n = Nx*Ny;
@@ -218,6 +223,11 @@ void SolverCG::Solve(double* b, double* x, MPI_Comm comm, int left, int right, i
  * @brief ApplyOperator applies second order finite difference discretisation to input and output vectors
  * @param in Input vector 
  * @param out Output vector
+ * @param comm Cartesian communicator
+ * @param left Source rank x direction
+ * @param right Destination rank x direction
+ * @param up Destination rank y direction
+ * @param down source rank x direction
 */
 void SolverCG::ApplyOperator(double* in, double* out, MPI_Comm comm, int left, int right, int up, int down) {
     // Assume ordered with y-direction fastest (column-by-column)
@@ -311,6 +321,11 @@ void SolverCG::ApplyOperator(double* in, double* out, MPI_Comm comm, int left, i
  * @brief Preconditioning to speed up convergence, better solution representation
  * @param in Input vector (matrix)
  * @param out Output vector (vector)
+ * @param comm Cartesian communicator
+ * @param left Source rank x direction
+ * @param right Destination rank x direction
+ * @param up Destination rank y direction
+ * @param down source rank x direction
 */
 void SolverCG::Precondition(double* in, double* out, int left, int right, int up, int down) {
 
@@ -379,6 +394,10 @@ void SolverCG::Precondition(double* in, double* out, int left, int right, int up
 /**
  * @brief Applying boundary conditions on vectors in specific directions
  * @param inout Vector in which bcs applied to, most likely velocity 
+ * @param left Source rank x direction
+ * @param right Destination rank x direction
+ * @param up Destination rank y direction
+ * @param down source rank x direction
 */
 void SolverCG::ImposeBC(double* inout, int left, int right, int up, int down) {
         // Boundaries
@@ -460,7 +479,12 @@ double SolverCG::OMP_Norm(double* a, int n){
       }
       return norm;
 }
-
+/**
+ * @brief Copy vector into another of same size
+ * @param a Source vector
+ * @param b Destination vector
+ * @param n Length of vector
+*/
 void SolverCG::OMP_Copy(double*a, double*b, int n){
     int i;
     #pragma omp parallel for \
@@ -471,6 +495,13 @@ void SolverCG::OMP_Copy(double*a, double*b, int n){
     }
 }
 
+/**
+ * @brief Matrix addition, y = alpha*x +y
+ * @param x Source vector
+ * @param y Destination vector
+ * @param alpha Factor 
+ * @param n Length of vector
+*/
 void SolverCG::OMP_Daxpy(double*x , double*y, double alpha,int n){
     int i;
     #pragma omp parallel for \

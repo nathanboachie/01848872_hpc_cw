@@ -117,6 +117,12 @@ void LidDrivenCavity::Initialise()
 
 /**
  * @brief Output number of steps and time of simulation, and step in time for vorticity, print on rank zero
+ * @param comm Cartesian communicator
+ * @param left Source rank
+ * @param right Destination rank
+ * @param up Destination rank
+ * @param down Source rank
+ * @param rank Rank on cartesian communicator
 */
 void LidDrivenCavity::Integrate(MPI_Comm comm, int left, int right, int up, int down, int rank)
 {
@@ -134,6 +140,11 @@ void LidDrivenCavity::Integrate(MPI_Comm comm, int left, int right, int up, int 
 
 /**
  * @brief Writing simulation to output files for data analysis
+ * @param File  file to be written to
+ * @param rank Rank of process
+ * @param dim_prcs Number of processes on dimension
+ * @param coords Cartesian coordinates of process
+ * @param comm Cartesian communicator
 */
 void LidDrivenCavity::WriteSolution(std::string file, int rank, int* dim_prcs, int coords[2], MPI_Comm comm )
 {
@@ -194,6 +205,7 @@ void LidDrivenCavity::WriteSolution(std::string file, int rank, int* dim_prcs, i
 
 /**
  * @brief Outputting configuration onto screen 
+ * @param size Number of processes
 */
 void LidDrivenCavity::PrintConfiguration(int size)
 {
@@ -255,6 +267,12 @@ void LidDrivenCavity::UpdateDxDy()
     Npts = Nx * Ny;
 }
 
+/**
+ * @brief Writing binary file for later conversion
+ * @param dim_prcs Number of processes on dimension
+ * @param local_array Sub array inputted
+ * @param coords Cartesian coordinates on rank
+ **/
 void LidDrivenCavity::BinaryWrite(const std::string& filename,int* dim_prcs, double* local_array, int coords[2])
 {
     
@@ -296,6 +314,12 @@ void LidDrivenCavity::BinaryWrite(const std::string& filename,int* dim_prcs, dou
 
 }
 
+/**
+ * @brief Convert a binary file to an array
+ * @param filename Filename of binary file
+ * @param global_array Global array used for storing converted doubles
+ * @param array_size Size of array
+*/
 void LidDrivenCavity::readbinary(const std::string& filename, double* global_array, size_t array_size)
 {
     std::ifstream file(filename, std::ios::binary);

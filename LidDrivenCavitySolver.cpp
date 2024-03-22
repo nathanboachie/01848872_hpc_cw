@@ -94,8 +94,6 @@ int main(int argc, char **argv, int argc_mpi, char* argv_mpi[])
     T = param_double[3];
     Re = param_double[4];
 
-    
-    
     //Cartesian Grid implementation
     int* dim_prcs = new int[2]();
     MPI_Dims_create(size,2,dim_prcs);
@@ -103,7 +101,7 @@ int main(int argc, char **argv, int argc_mpi, char* argv_mpi[])
     MPI_Cart_create(MPI_COMM_WORLD, 2, dim_prcs, periodic, 1, &cartesian_comm);
     int coords[2];
     //Coordinate implementation
-    MPI_Comm_rank(cartesian_comm,&rank);
+    
     //MPI_Cart_rank(cartesian_comm, coords, &rank);
     int left;
     int right;
@@ -114,27 +112,41 @@ int main(int argc, char **argv, int argc_mpi, char* argv_mpi[])
     MPI_Cart_coords(cartesian_comm,rank,2,coords);
 
     //Load Balancing
-    int loc_nx;
-    int loc_ny;
-    int k_x;
-    int k_y;
-    int r_x = Nx % dim_prcs[0];
-    k_x     = (Nx - r_x) / dim_prcs[0];
-    if (coords[0] < (Nx % dim_prcs[0])) {           
-        k_x++;
+    int nx_p = floor(Nx/sqrt(size));
+    int ny_q = floor(Ny/sqrt(size));
+    int nx_mod = Nx % int(sqrt(size));
+    int ny_mod = Ny % int(sqrt(size));
+
+    int loc_nx, loc_ny;
+
+    double val1 = rank/sqrt(size);
+    int val2 = rank % int(sqrt(size));
+
+    if(val1 < int(sqrt(size))-1)
+    {
+        loc_nx = nx_p;
     }
-    loc_nx = k_x;
-    int r_y = Ny % dim_prcs[1];      
-    k_y    = (Ny - r_y) / dim_prcs[1];
-    if (coords[1] < (Ny % dim_prcs[1])) {           
-        k_y++;
-    }  
-    loc_ny = k_y;
+    else
+    {
+        loc_nx = nx_p + nx_mod;
+    }
+
+    if(val2 < int(sqrt(size))-1)
+    {
+        loc_ny = ny_q;
+    }
+    else
+    {
+        loc_ny = ny_q + ny_mod;
+    }
+    loc_nx = int(loc_nx);
+    loc_ny = int(loc_ny);
+
+    //Cartesian Rank
+    MPI_Comm_rank(cartesian_comm,&rank);
     double loc_lx = Lx/dim_prcs[0];
     double loc_ly = Ly/dim_prcs[1];
-
-   
-    //Setting variables
+    //Setting variables 
     LidDrivenCavity* solver = new LidDrivenCavity();
     solver->SetDomainSize(loc_lx,loc_ly);
     solver->SetGridSize(loc_nx,loc_ny);
@@ -142,7 +154,7 @@ int main(int argc, char **argv, int argc_mpi, char* argv_mpi[])
     solver->SetFinalTime(T);
     solver->SetReynoldsNumber(Re);
     
-    //Print config to rank zero
+    Print config to rank zero
     if(rank == 0)
     {
         solver->PrintConfiguration(size);
