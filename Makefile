@@ -1,5 +1,5 @@
 CC = mpicxx
-CXXFLAGS = -std=c++14 -Wall -O2 -fopenmp -g
+CXXFLAGS = -std=c++14 -Wall -g -O2 -ftree-vectorize -fopenmp 
 HDRS = LidDrivenCavity.h SolverCG.h 
 OBJS = LidDrivenCavitySolver.o LidDrivenCavity.o SolverCG.o
 LDLIBS = -lblas -lboost_program_options -fopenmp
@@ -10,9 +10,18 @@ LDLIBS = -lblas -lboost_program_options -fopenmp
 solver: $(OBJS)
 	$(CC) -o $@ $^ $(LDLIBS)
 
+solver_test: solver_test.o $(OBJS)
+	$(CC) $(CXXFLAGS) -o $@ $^ $(LDLIBS) -lboost_unit_test_framework
+
+test: solver_test
+	./solver_test
+
 doc:
 	doxygen Doxyfile
 
-all: solver
+all: solver solver_test
 
-clean: -rm -f $(OBJS) solver
+clean:
+	-rm -f $(OBJS) solver solver_test solver_test.o
+
+

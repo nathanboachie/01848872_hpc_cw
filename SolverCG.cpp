@@ -87,18 +87,18 @@ void SolverCG::Solve(double* b, double* x, MPI_Comm comm, int left, int right, i
         }
         return;
     }   
-   
+    //
     //Padding for apply operator
-    for(int i = 1; i <= Nx ; ++i)
+    for(int j = 1; j <= Ny ; ++j)
     {
-        for(int j = 1 ; j <= Ny ; ++j)
+        for(int i = 1 ; i <= Nx ; ++i)
         {
             xsolve[IDX_p(i,j)] = x[IDX(i-1,j-1)];
         }
     }
-    for(int i = 1; i <= Nx ; ++i)
+    for(int j = 1; j <= Ny ; ++j)
     {
-        for(int j = 1 ; j <= Ny ; ++j)
+        for(int i = 1 ; i <= Nx ; ++i)
         {
             tsolve[IDX_p(i,j)] = t[IDX(i-1,j-1)];
         }
@@ -107,17 +107,17 @@ void SolverCG::Solve(double* b, double* x, MPI_Comm comm, int left, int right, i
     
     ApplyOperator(xsolve, tsolve, comm, left, right, up, down);
     //Removing padding
-    for(int i = 1; i <= Nx ; ++i)
+    for(int j = 1; j <= Ny ; ++j)
     {
-        for(int j = 1; j <= Ny ; ++j)
+        for(int i = 1; i <= Nx ; ++i)
         {
             x[IDX(i-1,j-1)] = xsolve[IDX_p(i,j)];
         }
     }
 
-    for(int i = 1; i <= Nx ; ++i)
+    for(int j = 1; j <= Ny ; ++j)
     {
-        for(int j = 1; j <= Ny ; ++j)
+        for(int i = 1; i <= Nx ; ++i)
         {
             t[IDX(i-1,j-1)] = tsolve[IDX_p(i,j)];
         }
@@ -138,18 +138,18 @@ void SolverCG::Solve(double* b, double* x, MPI_Comm comm, int left, int right, i
     do {
         k++;
         // Perform action of Nabla^2 * p
-        for(int i = 1; i <= Nx ; ++i)
+        for(int j = 1; j <= Ny ; ++j)
         {
-            for(int j = 1 ; j <= Ny ; ++j)
+            for(int i = 1 ; i <= Nx ; ++i)
             {
                 psolve[IDX_p(i,j)] = p[IDX(i-1,j-1)];
             }
         }
         
         
-        for(int i = 1; i <= Nx ; ++i)
+        for(int j = 1; j <= Ny ; ++j)
         {   
-            for(int j = 1 ; j <= Ny ; ++j)
+            for(int i = 1 ; i <= Nx ; ++i)
             {
                 tsolve[IDX_p(i,j)] = t[IDX(i-1,j-1)];
             }
@@ -157,17 +157,17 @@ void SolverCG::Solve(double* b, double* x, MPI_Comm comm, int left, int right, i
         
         ApplyOperator(psolve, tsolve, comm, left, right, up, down);
         
-        for(int i = 1; i <= Nx ; ++i)
+        for(int j = 1; j <= Ny ; ++j)
         {
-            for(int j = 1; j <= Ny ; ++j)
+            for(int i = 1; i <= Ny ; ++i)
             {
                 p[IDX(i-1,j-1)] = psolve[IDX_p(i,j)];
             }
         }
 
-        for(int i = 1; i <= Nx ; ++i)
+        for(int j = 1; j <= Ny ; ++j)
         {
-            for(int j = 1; j <= Ny ; ++j)
+            for(int i = 1; i <= Nx ; ++i)
             {
                 t[IDX(i-1,j-1)] = tsolve[IDX_p(i,j)];
             }
@@ -313,7 +313,7 @@ void SolverCG::ApplyOperator(double* in, double* out, MPI_Comm comm, int left, i
  * @param out Output vector (vector)
 */
 void SolverCG::Precondition(double* in, double* out, int left, int right, int up, int down) {
-    int i, j;
+
     double dx2i = 1.0/dx/dx;
     double dy2i = 1.0/dy/dy;
     double factor = 2.0*(dx2i + dy2i);
@@ -326,8 +326,8 @@ void SolverCG::Precondition(double* in, double* out, int left, int right, int up
    
     
     #pragma omp parallel for collapse(2) shared(in, out, factor) schedule(static)
-    for (int i = start_x_pr; i < end_x_pr; ++i) {
-        for (int j = start_y_pr; j < end_y_pr; ++j) {
+    for (int j = start_y_pr; j < end_y_pr; ++j) {
+        for (int i = start_x_pr; i < end_x_pr; ++i) {
             out[IDX(i, j)] = in[IDX(i, j)] / factor;
         }
     }

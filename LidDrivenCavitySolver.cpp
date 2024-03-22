@@ -133,9 +133,7 @@ int main(int argc, char **argv, int argc_mpi, char* argv_mpi[])
     double loc_lx = Lx/dim_prcs[0];
     double loc_ly = Ly/dim_prcs[1];
 
-    int loc_lx_int = int(loc_lx);
-    int loc_ly_int = int(loc_ly);
-    
+   
     //Setting variables
     LidDrivenCavity* solver = new LidDrivenCavity();
     solver->SetDomainSize(loc_lx,loc_ly);
@@ -155,11 +153,11 @@ int main(int argc, char **argv, int argc_mpi, char* argv_mpi[])
     solver->Initialise();
 
     //Integrate and write solutions
-    //solver->WriteSolution("ic.txt");
+    solver->WriteSolution("ic.txt",rank,dim_prcs,coords,cartesian_comm);
     solver->Integrate(cartesian_comm, left, right, up, down, rank);
-    //solver->WriteSolution("final.txt");
+    solver->WriteSolution("final.txt",rank,dim_prcs,coords,cartesian_comm);
     
-    //Memory deallocation
+    //Memory deallocation//
     MPI_Comm_free(&cartesian_comm);  
     MPI_Finalize();
     delete[] param_double;

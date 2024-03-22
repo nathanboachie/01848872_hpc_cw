@@ -24,9 +24,17 @@ public:
 
     void Initialise();
     void Integrate(MPI_Comm comm, int left, int right, int up, int down, int rank);
-    void WriteSolution(std::string file);
+    void WriteSolution(std::string file, int rank, int* dim_prcs, int coords[2], MPI_Comm comm);
     void PrintConfiguration(int size);
     
+    //Getters for testing
+    double Get_Lx() const {return Lx;}
+    double Get_Ly() const {return Ly;}
+    int Get_Nx() const {return Nx;}
+    int Get_Ny() const {return Ny;}
+    double Get_Dt() const {return dt;}
+    double Get_T() const {return T;}
+    double Get_Re() const {return Re;}
     
 private:
     double* v   = nullptr;
@@ -47,6 +55,7 @@ private:
     double* out_grd_x3 = nullptr;
     double* in_grd_y3 = nullptr;
     double* out_grd_y3 = nullptr;
+    int* dim_prcs = nullptr;
     
 
     double dt;
@@ -68,8 +77,7 @@ private:
     int right;
     int down;
     MPI_Comm comm;
-    
-
+    int coords[2];
     
 
     
@@ -78,5 +86,6 @@ private:
     void CleanUp();
     void UpdateDxDy();
     void Advance(MPI_Comm comm, int left, int right, int up, int down, int rank);
+    void BinaryWrite(const std::string& filename, int* dim_prcs, double* local_array, int coords[2]);
+    void readbinary(const std::string& filename, double* global_array, size_t array_size);
 };
-
